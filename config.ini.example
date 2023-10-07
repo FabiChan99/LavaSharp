@@ -1,0 +1,12 @@
+[MainConfig]
+Discord_Token = TokenHere
+BotOwnerId = YourUserID
+DiscordServerID = ServerID
+
+[EmbedConfig]
+DefaultEmbedColor = FFFFFF
+
+[Lavalink]
+Host = 127.0.0.1
+Port = 2333
+Password = youshallnotpass
