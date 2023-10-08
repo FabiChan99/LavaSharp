@@ -8,6 +8,7 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
+using DisCatSharp.Lavalink.Enums;
 using DisCatSharp.Lavalink.EventArgs;
 using LavaSharp.Config;
 using LavaSharp.Helpers;
@@ -31,6 +32,10 @@ namespace LavaSharp.LavaManager
 
         public static async Task PlaybackFinished(LavalinkGuildPlayer sender, LavalinkTrackEndedEventArgs e, InteractionContext ctx)
         {
+            if (e.Reason == LavalinkTrackEndReason.Replaced)
+            {
+                return;
+            }
             if (isLooping)
             {
                 await sender.PlayAsync(e.Track);
