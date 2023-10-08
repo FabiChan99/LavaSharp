@@ -18,7 +18,7 @@ public class SeekCommand : ApplicationCommandsModule
     {
         if (!TimeParser.TryParseTime(timeString, out TimeSpan time))
         {
-            var errorEmbed = EmbedGenerator.GetErrorEmbed("Invalid time format. Please use format HH:mm:ss.");
+            var errorEmbed = EmbedGenerator.GetErrorEmbed("Invalid time format. Please use format HH:mm:ss or mm:ss.");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
