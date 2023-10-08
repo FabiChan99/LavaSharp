@@ -26,18 +26,6 @@ namespace LavaSharp.Commands
             var node = lava.ConnectedSessions.First().Value;
             var player = node.GetGuildPlayer(ctx.Guild);
             var channel = ctx.Member.VoiceState?.Channel;
-
-            if (player is null)
-            {
-                // If player is null, bot is not connected to voice
-                var embed = new DiscordEmbedBuilder()
-                    .WithDescription("I'm not connected to a voice channel.")
-                    .WithColor(BotConfig.GetEmbedColor());
-
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed));
-                return;
-            }
-
             if (player.Channel.Id != channel?.Id)
             {
                 // If player is not in the same channel as the user
@@ -48,20 +36,6 @@ namespace LavaSharp.Commands
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed));
                 return;
             }
-
-            // Skip logic
-
-            if (channel is null)
-            {
-                // If user is not in a voice channel
-                var embed = new DiscordEmbedBuilder()
-                    .WithDescription("You must be in a voice channel to use this command.")
-                    .WithColor(BotConfig.GetEmbedColor());
-
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed));
-                return;
-            }
-
             if (queue.Count == 0)
             {
                 // If queue is empty
@@ -73,7 +47,6 @@ namespace LavaSharp.Commands
                 return;
             }
 
-            // If queue count is greater than 0
             var track = queue.Dequeue();
             await player.PlayAsync(track);
 
