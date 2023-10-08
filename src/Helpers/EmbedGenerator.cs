@@ -14,7 +14,9 @@ namespace LavaSharp.Helpers
             return new DiscordEmbedBuilder()
                 .WithDescription(description)
                 .WithTitle("Error")
-                .WithColor(DiscordColor.Red);
+                .WithFooter("Oops! Something went wrong.", "https://cdn.discordapp.com/emojis/755048875965939833.webp")
+                .WithColor(new DiscordColor(255, 69, 58)); 
         }
+
     }
 }
