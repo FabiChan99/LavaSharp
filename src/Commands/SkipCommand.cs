@@ -8,11 +8,13 @@ using DisCatSharp.Lavalink;
 using LavaSharp.Config;
 using LavaSharp.Helpers;
 using LavaSharp.LavaManager;
+using LavaSharp.Attributes;
 
 namespace LavaSharp.Commands
 {
     public class SkipCommand : ApplicationCommandsModule
     {
+        [ApplicationRequireExecutorInVoice]
         [SlashCommand("skip", "Skips the current song")]
         public async Task Skip(InteractionContext ctx)
         {
