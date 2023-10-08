@@ -65,10 +65,7 @@ public class PlayCommand : ApplicationCommandsModule
             LavaQueue.queue.Enqueue(track);
 
 
-            var playEmbed = EmbedGenerator.GetPlayEmbed(track);
-            playEmbed.WithDescription($"Added {SongResolver.GetTrackInfo(track)} to the queue!");
-            playEmbed.WithTitle("Added to Queue");
-
+            var playEmbed = EmbedGenerator.GetQueueAddedEmbed(track);
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(playEmbed));
             return;
         }

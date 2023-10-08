@@ -36,7 +36,7 @@ namespace LavaSharp.Helpers
         {
             var embed = new DiscordEmbedBuilder()
                 .WithTitle("Added to Queue")
-                .WithDescription($"**{track.Info.Title}**\n*{track.Info.Author}*")
+                .WithDescription($"**{track.Info.Title}**\n*{track.Info.Author}* - {track.Info.Length}")
                 .WithUrl(track.Info.Uri)
                 .WithColor(new DiscordColor(36, 187, 252));
             if (!string.IsNullOrEmpty(track.Info.ArtworkUrl?.ToString()))
