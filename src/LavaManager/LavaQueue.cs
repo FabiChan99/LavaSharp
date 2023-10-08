@@ -4,7 +4,6 @@ using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
 using DisCatSharp.Lavalink.Enums;
 using DisCatSharp.Lavalink.EventArgs;
-using LavaSharp.Config;
 using LavaSharp.Helpers;
 
 namespace LavaSharp.LavaManager
