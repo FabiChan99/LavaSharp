@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DisCatSharp.Entities;
+using DisCatSharp.Lavalink.Entities;
 
 namespace LavaSharp.Helpers
 {
@@ -18,5 +19,39 @@ namespace LavaSharp.Helpers
                 .WithColor(new DiscordColor(255, 69, 58)); 
         }
 
+        public static DiscordEmbedBuilder GetPlayEmbed(LavalinkTrack track)
+        {
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle("Now Playing")
+                .WithDescription($"**{track.Info.Title}**\n*{track.Info.Author}*")
+                .WithUrl(track.Info.Uri)
+                .WithColor(new DiscordColor(36, 187, 252));
+
+            if (!string.IsNullOrEmpty(track.Info.ArtworkUrl?.ToString()))
+            {
+                embed.WithThumbnail(track.Info.ArtworkUrl);
+            }
+
+            embed.WithFooter("LavaSharp", CurrentApplicationData.BotApplication.AvatarUrl);
+
+            return embed;
+        }
+
+        public static DiscordEmbedBuilder GetQueueAddedEmbed(LavalinkTrack track)
+        {
+            var embed = new DiscordEmbedBuilder()
+                .WithTitle("Added to Queue")
+                .WithDescription($"**{track.Info.Title}**\n*{track.Info.Author}*")
+                .WithUrl(track.Info.Uri)
+                .WithColor(new DiscordColor(36, 187, 252));
+            if (!string.IsNullOrEmpty(track.Info.ArtworkUrl?.ToString()))
+            {
+                embed.WithThumbnail(track.Info.ArtworkUrl);
+            }
+
+            embed.WithFooter("LavaSharp", CurrentApplicationData.BotApplication.AvatarUrl);
+
+            return embed;
+        }
     }
 }

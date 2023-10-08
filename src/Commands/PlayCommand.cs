@@ -9,6 +9,7 @@ using DisCatSharp.Lavalink.Enums;
 using Newtonsoft.Json.Linq;
 using System.Xml.Linq;
 using DisCatSharp.Exceptions;
+using LavaSharp.Attributes;
 using LavaSharp.Enums;
 using LavaSharp.Helpers;
 using LavaSharp.LavaManager;
@@ -192,22 +193,19 @@ public class PlayCommand : ApplicationCommandsModule
     }
     */
 
+    [ApplicationRequireExecutorInVoice]
     [SlashCommand("play", "Plays a song.")]
-    public static async Task Play(InteractionContext ctx, [Option("query", "The query to search for (URL or Song Name")] string query)
+    public static async Task Play(InteractionContext ctx, [Option("query", "The query to search for (URL or Song Name)")] string query)
     {
         var lava = ctx.Client.GetLavalink();
         var node = lava.ConnectedSessions.First().Value;
         var player = node.GetGuildPlayer(ctx.Guild);
         var channel = ctx.Member.VoiceState?.Channel;
-        if (channel is null)
-        {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("You must be in a voice channel!"));
-            return;
-        }
         LavalinkGuildPlayer? lavaPlayer = null;
         if (player != null && player.Channel != channel)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("You must be in the same voice channel!"));
+            var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel!");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
 
@@ -222,9 +220,11 @@ public class PlayCommand : ApplicationCommandsModule
 
         if (lavaPlayer?.Player is null)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent("Failed to connect to voice channel!"));
+            var errorEmbed = EmbedGenerator.GetErrorEmbed("Failed to connect to voice channel!");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
+
         var loadResult = await lavaPlayer.LoadTracksAsync(LavalinkSearchType.Youtube, query);
         LavalinkTrack track = loadResult.LoadType switch
         {
@@ -236,17 +236,25 @@ public class PlayCommand : ApplicationCommandsModule
             _ => throw new InvalidOperationException("Unexpected load result type.")
         };
         bool isPlaying = lavaPlayer.CurrentTrack is not null;
-        //lavaPlayer.AddToQueue(new QueueEntry(), track);
+
         if (isPlaying)
         {
             LavaQueue.queue.Enqueue(track);
-            int queueSize = LavaQueue.queue.Count;
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Added {track.Info.Title} to the queue!"));
+
+
+            var playEmbed = EmbedGenerator.GetPlayEmbed(track);
+            playEmbed.WithDescription($"Added {SongResolver.GetTrackInfo(track)} to the queue!");
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(playEmbed));
             return;
         }
         else
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Now playing {track.Info.Title}")); ;
+            var playEmbed = EmbedGenerator.GetPlayEmbed(track);
+            playEmbed.WithDescription($"Now playing {SongResolver.GetTrackInfo(track)}");
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(playEmbed));
+
             lavaPlayer.TrackEnded += (sender, e) => LavaQueue.PlaybackFinished(sender, e, ctx);
             await lavaPlayer.PlayAsync(track);
             return;

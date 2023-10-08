@@ -20,42 +20,34 @@ namespace LavaSharp.Commands
         [SlashCommand("skip", "Skips the current song")]
         public async Task Skip(InteractionContext ctx)
         {
-            // Get queue from LavaQueue
             var queue = LavaQueue.queue;
             var lava = ctx.Client.GetLavalink();
             var node = lava.ConnectedSessions.First().Value;
             var player = node.GetGuildPlayer(ctx.Guild);
             var channel = ctx.Member.VoiceState?.Channel;
+
             if (player.Channel.Id != channel?.Id)
             {
-                // If player is not in the same channel as the user
-                var embed = new DiscordEmbedBuilder()
-                    .WithDescription("You must be in the same voice channel as me.")
-                    .WithColor(BotConfig.GetEmbedColor());
-
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed));
+                var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel as me.");
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
                 return;
             }
+
             if (queue.Count == 0)
             {
-                // If queue is empty
-                var embed = new DiscordEmbedBuilder()
-                    .WithDescription("There are no songs in the queue.")
-                    .WithColor(BotConfig.GetEmbedColor());
-
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed));
+                var errorEmbed = EmbedGenerator.GetErrorEmbed("There are no songs in the queue.");
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
                 return;
             }
 
             var track = queue.Dequeue();
             await player.PlayAsync(track);
 
-            var embed2 = new DiscordEmbedBuilder()
-                .WithDescription($"Playing next track: {SongResolver.GetTrackInfo(track)}")
-                .WithColor(BotConfig.GetEmbedColor())
-                .WithAuthor(track.Info.Title, iconUrl: ctx.Client.CurrentUser.AvatarUrl, url: track.Info.Uri.ToString());
+            var playEmbed = EmbedGenerator.GetPlayEmbed(track);
+            playEmbed.WithDescription($"Playing next track: {SongResolver.GetTrackInfo(track)}");
+            playEmbed.WithTitle("Current Song skipped");
 
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(embed2));
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(playEmbed));
         }
     }
 }

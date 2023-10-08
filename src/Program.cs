@@ -8,11 +8,17 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Reflection;
+using DisCatSharp.Entities;
 using LavaSharp.Config;
 using LavaSharp.Services;
 
 namespace LavaSharp;
 
+public class CurrentApplicationData
+{
+    public static DiscordClient? Client { get; set; }
+    public static DiscordUser? BotApplication { get; set; }
+}
 
 internal class Program
 {
@@ -77,6 +83,8 @@ internal class Program
     private static Task Discord_Ready(DiscordClient sender, ReadyEventArgs e)
     {
         sender.Logger.LogInformation($"{sender.CurrentUser.UsernameWithDiscriminator} is Online and Ready!");
+        CurrentApplicationData.Client = sender;
+        CurrentApplicationData.BotApplication = sender.CurrentUser;
         return Task.CompletedTask;
     }
 
