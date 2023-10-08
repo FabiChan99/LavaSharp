@@ -10,6 +10,7 @@ using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
 using DisCatSharp.Lavalink.EventArgs;
 using LavaSharp.Config;
+using LavaSharp.Helpers;
 
 namespace LavaSharp.LavaManager
 {
@@ -34,7 +35,7 @@ namespace LavaSharp.LavaManager
             {
                 await sender.PlayAsync(e.Track);
                 var eb = new DiscordEmbedBuilder()
-                    .WithDescription($"Loop aktiviert: Spielt den aktuellen Titel erneut: \n{GetTrackInfo(e.Track)}")
+                    .WithDescription($"Loop aktiviert: Spielt den aktuellen Titel erneut: \n{SongResolver.GetTrackInfo(e.Track)}")
                     .WithColor(BotConfig.GetEmbedColor())
                     .WithAuthor(e.Track.Info.Title, iconUrl: ctx.Client.CurrentUser.AvatarUrl, url: e.Track.Info.Uri.ToString());
                 await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(eb));
@@ -46,7 +47,7 @@ namespace LavaSharp.LavaManager
                 await sender.PlayAsync(nextTrack);
 
                 int remainingTracks = queue.Count;
-                string message = $"Spiele nächsten Titel: {GetTrackInfo(nextTrack)}\n";
+                string message = $"Spiele nächsten Titel: {SongResolver.GetTrackInfo(nextTrack)}\n";
                 if (remainingTracks > 0)
                 {
                     message += $"Verbleibende Songs in der Warteschlange: {remainingTracks}";
@@ -67,11 +68,5 @@ namespace LavaSharp.LavaManager
                 await DisconnectAndReset(sender);
             }
         }
-
-        public static string GetTrackInfo(LavalinkTrack track)
-        {
-            return $"{track.Info.Title} ({track.Info.Length:mm\\:ss})";
-        }
-
     }
 }
