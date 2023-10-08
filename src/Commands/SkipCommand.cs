@@ -14,7 +14,9 @@ namespace LavaSharp.Commands
 {
     public class SkipCommand : ApplicationCommandsModule
     {
+
         [ApplicationRequireExecutorInVoice]
+        [RequireRunningPlayer]
         [SlashCommand("skip", "Skips the current song")]
         public async Task Skip(InteractionContext ctx)
         {
