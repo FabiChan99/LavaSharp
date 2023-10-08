@@ -32,9 +32,10 @@ namespace LavaSharp.Commands
                 return;
             }
             await LavaQueue.DisconnectAndReset(player);
-            var playEmbed = EmbedGenerator.GetPlayEmbed(player.CurrentTrack);
+            var playEmbed = new DiscordEmbedBuilder();
             playEmbed.WithDescription($"Player Destroyed.");
-            playEmbed.WithTitle("The Player has been stopped.");
+            playEmbed.WithTitle("The Player has been stopped.").WithColor(DiscordColor.Red);
+            playEmbed.WithFooter(ctx.User.UsernameWithDiscriminator);
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(playEmbed));
         }
     }
