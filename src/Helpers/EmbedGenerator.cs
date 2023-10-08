@@ -13,6 +13,7 @@ namespace LavaSharp.Helpers
         {
             return new DiscordEmbedBuilder()
                 .WithDescription(description)
+                .WithTitle("Error")
                 .WithColor(DiscordColor.Red);
         }
     }
