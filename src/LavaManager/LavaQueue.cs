@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DisCatSharp.ApplicationCommands.Context;
+﻿using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
@@ -17,7 +11,7 @@ namespace LavaSharp.LavaManager
 {
     public static class LavaQueue
     {
-        public static Queue<LavalinkTrack> queue = new Queue<LavalinkTrack>();
+        public static Queue<LavalinkTrack> queue = new();
         public static bool isLooping = false;
 
 

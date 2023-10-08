@@ -1,5 +1,4 @@
 ﻿using DisCatSharp.Lavalink.Entities;
-using LavaSharp.Config;
 
 namespace LavaSharp.Helpers;
 

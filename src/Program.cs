@@ -1,16 +1,16 @@
 ﻿using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
+using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Extensions;
+using LavaSharp.Config;
+using LavaSharp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Reflection;
-using DisCatSharp.Entities;
-using LavaSharp.Config;
-using LavaSharp.Services;
 
 namespace LavaSharp;
 
@@ -51,7 +51,7 @@ internal class Program
             .AddLogging(lb => lb.AddSerilog())
             .BuildServiceProvider();
 
-        DiscordClient discord = new (new DiscordConfiguration
+        DiscordClient discord = new(new DiscordConfiguration
         {
             Token = DcApiToken,
             TokenType = TokenType.Bot,

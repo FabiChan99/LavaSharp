@@ -1,14 +1,8 @@
 ﻿using DisCatSharp.ApplicationCommands.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
-using LavaSharp.Config;
 using LavaSharp.Helpers;
 
 namespace LavaSharp.Attributes

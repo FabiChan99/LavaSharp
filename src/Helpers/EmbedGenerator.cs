@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DisCatSharp.Entities;
+﻿using DisCatSharp.Entities;
 using DisCatSharp.Lavalink.Entities;
 
 namespace LavaSharp.Helpers
@@ -16,7 +11,7 @@ namespace LavaSharp.Helpers
                 .WithDescription(description)
                 .WithTitle("Error")
                 .WithFooter("Oops! Something went wrong.", "https://cdn.discordapp.com/emojis/755048875965939833.webp")
-                .WithColor(new DiscordColor(255, 69, 58)); 
+                .WithColor(new DiscordColor(255, 69, 58));
         }
 
         public static DiscordEmbedBuilder GetPlayEmbed(LavalinkTrack track)

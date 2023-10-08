@@ -6,14 +6,9 @@ using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
 using DisCatSharp.Lavalink.Enums;
-using Newtonsoft.Json.Linq;
-using System.Xml.Linq;
-using DisCatSharp.Exceptions;
 using LavaSharp.Attributes;
-using LavaSharp.Enums;
 using LavaSharp.Helpers;
 using LavaSharp.LavaManager;
-using Microsoft.VisualBasic;
 
 namespace LavaSharp.Commands;
 
