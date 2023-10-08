@@ -67,6 +67,7 @@ public class PlayCommand : ApplicationCommandsModule
 
             var playEmbed = EmbedGenerator.GetPlayEmbed(track);
             playEmbed.WithDescription($"Added {SongResolver.GetTrackInfo(track)} to the queue!");
+            playEmbed.WithTitle("Added to Queue");
 
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(playEmbed));
             return;

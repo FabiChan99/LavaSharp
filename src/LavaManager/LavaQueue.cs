@@ -14,9 +14,6 @@ namespace LavaSharp.LavaManager
         public static Queue<LavalinkTrack> queue = new();
         public static bool isLooping = false;
 
-
-
-
         public static async Task DisconnectAndReset(LavalinkGuildPlayer connection)
         {
             await connection.DisconnectAsync();
@@ -30,15 +27,16 @@ namespace LavaSharp.LavaManager
             {
                 return;
             }
+
             if (isLooping)
             {
                 await sender.PlayAsync(e.Track);
-                var eb = new DiscordEmbedBuilder()
-                    .WithDescription($"Loop aktiviert: Spielt den aktuellen Titel erneut: \n{SongResolver.GetTrackInfo(e.Track)}")
-                    .WithColor(BotConfig.GetEmbedColor())
-                    .WithAuthor(e.Track.Info.Title, iconUrl: ctx.Client.CurrentUser.AvatarUrl, url: e.Track.Info.Uri.ToString());
+
+                var eb = EmbedGenerator.GetPlayEmbed(e.Track);
+                eb.WithDescription($"Looping: {SongResolver.GetTrackInfo(e.Track)}");
+                eb.WithTitle("Looping Track");
+
                 await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(eb));
-                return;
             }
             else if (queue.Count > 0)
             {
@@ -46,20 +44,12 @@ namespace LavaSharp.LavaManager
                 await sender.PlayAsync(nextTrack);
 
                 int remainingTracks = queue.Count;
-                string message = $"Spiele nächsten Titel: {SongResolver.GetTrackInfo(nextTrack)}\n";
-                if (remainingTracks > 0)
-                {
-                    message += $"Verbleibende Songs in der Warteschlange: {remainingTracks}";
-                }
-                else
-                {
-                    message += "Keine weiteren Songs in der Warteschlange.";
-                }
+                string message = $"Playing next track: {SongResolver.GetTrackInfo(nextTrack)}\n";
 
-                var eb = new DiscordEmbedBuilder()
-                    .WithDescription(message)
-                    .WithColor(BotConfig.GetEmbedColor())
-                    .WithAuthor(nextTrack.Info.Title, iconUrl: ctx.Client.CurrentUser.AvatarUrl, url: nextTrack.Info.Uri.ToString());
+                var eb = EmbedGenerator.GetPlayEmbed(nextTrack);
+                eb.WithDescription(message);
+                eb.WithTitle("Now Playing");
+
                 await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().AddEmbed(eb));
             }
             else if (sender.CurrentTrack == null)
