@@ -11,7 +11,7 @@ namespace LavaSharp.LavaManager
 {
     public static class LavaQueue
     {
-        public static Queue<(LavalinkTrack, DiscordUser)> queue = new Queue<(LavalinkTrack, DiscordUser)>();
+        public static Queue<(LavalinkTrack, DiscordUser)> queue = new();
         public static bool isLooping = false;
 
         public static async Task DisconnectAndReset(LavalinkGuildPlayer connection)
@@ -50,7 +50,7 @@ namespace LavaSharp.LavaManager
                 await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(nextTrack.Item1, sender));
             }
 
-            if (sender.CurrentTrack == null && queue.Count == 0 && e.Reason != LavalinkTrackEndReason.Stopped)  
+            if (sender.CurrentTrack == null && queue.Count == 0 && e.Reason != LavalinkTrackEndReason.Stopped)
             {
                 var finishedemb = new DiscordEmbedBuilder()
                 {

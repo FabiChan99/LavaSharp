@@ -1,7 +1,6 @@
 ﻿using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
-using LavaSharp.LavaManager;
 
 namespace LavaSharp.Helpers;
 
@@ -11,7 +10,7 @@ public class SongResolver
     {
         return $"{track.Info.Title} ({track.Info.Length:mm\\:ss})";
     }
-    
+
 }
 
 public static class CurrentPlayData

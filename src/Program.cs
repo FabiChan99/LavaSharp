@@ -5,13 +5,13 @@ using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Extensions;
+using DisCatSharp.Lavalink;
 using LavaSharp.Config;
 using LavaSharp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Reflection;
-using DisCatSharp.Lavalink;
 
 namespace LavaSharp;
 
