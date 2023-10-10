@@ -13,6 +13,8 @@ namespace LavaSharp.Commands
     public class SkipCommand : ApplicationCommandsModule
     {
 
+        [EnsureGuild]
+        [EnsureMatchGuildId]
         [ApplicationRequireExecutorInVoice]
         [RequireRunningPlayer]
         [SlashCommand("skip", "Skips the current song")]
@@ -37,15 +39,14 @@ namespace LavaSharp.Commands
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
                 return;
             }
-
             var track = queue.Dequeue();
-            await player.PlayAsync(track);
 
-            var playEmbed = EmbedGenerator.GetPlayEmbed(track);
-            playEmbed.WithDescription($"Playing next track: {SongResolver.GetTrackInfo(track)}");
-            playEmbed.WithTitle("Current Song skipped");
+            CurrentPlayData.track = track.Item1;
+            CurrentPlayData.user = track.Item2;
+            await player.PlayAsync(track.Item1);
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"⏩ | Skipped the current song."));
+            await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(track.Item1, player));
 
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(playEmbed));
         }
     }
 }

@@ -11,6 +11,8 @@ namespace LavaSharp.Commands;
 
 public class SeekCommand : ApplicationCommandsModule
 {
+    [EnsureGuild]
+    [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
     [RequireRunningPlayer]
     [SlashCommand("seek", "Seeks to a certain time in the song")]
@@ -50,11 +52,6 @@ public class SeekCommand : ApplicationCommandsModule
         }
 
         await player.SeekAsync(time);
-
-        var playEmbed = EmbedGenerator.GetPlayEmbed(player.CurrentTrack);
-        playEmbed.WithDescription($"Seeked to {time:mm\\:ss} in the song.");
-        playEmbed.WithTitle("Seeked");
-
-        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(playEmbed));
+        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"Seeked to {time.ToString(@"mm\:ss")}"));
     }
 }

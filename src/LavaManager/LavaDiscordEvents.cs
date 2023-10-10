@@ -22,7 +22,6 @@ public class LavaDiscordEvents : ApplicationCommandsModule
             {
                 return;
             }
-            Console.WriteLine("Bot got disconnected");
             await LavaQueue.DisconnectAndReset(player);
         }
     }

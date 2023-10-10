@@ -1,10 +1,12 @@
 [MainConfig]
 Discord_Token = TokenHere
+BotName = BotNameHere
 BotOwnerId = YourUserID
 DiscordServerID = ServerID
 
 [EmbedConfig]
 DefaultEmbedColor = FFFFFF
+EmbedImageURL = https://cdn.discordapp.com/avatars/1159631528083595334/a2b5482df1c0ee7ea8390b24f08928ce.png?size=1024
 
 [Lavalink]
 Host = 127.0.0.1

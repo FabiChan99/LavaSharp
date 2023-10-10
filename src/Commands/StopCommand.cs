@@ -12,6 +12,8 @@ namespace LavaSharp.Commands
 {
     public class StopCommand : ApplicationCommandsModule
     {
+        [EnsureGuild]
+        [EnsureMatchGuildId]
         [ApplicationRequireExecutorInVoice]
         [RequireRunningPlayer]
         [SlashCommand("stop", "Stops the current song")]
@@ -27,11 +29,11 @@ namespace LavaSharp.Commands
                 return;
             }
             await LavaQueue.DisconnectAndReset(player);
-            var playEmbed = new DiscordEmbedBuilder();
-            playEmbed.WithDescription($"Player Destroyed.");
-            playEmbed.WithTitle("The Player has been stopped.").WithColor(DiscordColor.Red);
-            playEmbed.WithFooter(ctx.User.UsernameWithDiscriminator);
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(playEmbed));
+            var StopEmbed = new DiscordEmbedBuilder();
+            StopEmbed.WithDescription($"Player Destroyed.");
+            StopEmbed.WithTitle("The Player has been stopped.").WithColor(DiscordColor.Red);
+            StopEmbed.WithFooter(ctx.User.UsernameWithDiscriminator);
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(StopEmbed));
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using DisCatSharp.Entities;
+using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
+using LavaSharp.Config;
+using LavaSharp.LavaManager;
 
 namespace LavaSharp.Helpers
 {
@@ -13,40 +16,40 @@ namespace LavaSharp.Helpers
                 .WithFooter("Oops! Something went wrong.", "https://cdn.discordapp.com/emojis/755048875965939833.webp")
                 .WithColor(new DiscordColor(255, 69, 58));
         }
-
-        public static DiscordEmbedBuilder GetPlayEmbed(LavalinkTrack track)
+        public static DiscordEmbedBuilder GetCurrentTrackEmbed(LavalinkTrack track, LavalinkGuildPlayer player)
         {
-            var embed = new DiscordEmbedBuilder()
+            var requester = CurrentPlayData.user;
+            var queuelength = LavaQueue.queue.Count;
+            string eburl = string.Empty;
+            try
+            {
+                eburl = BotConfig.GetConfig()["EmbedConfig"]["EmbedImageURL"];
+            }
+            catch (Exception)
+            {
+                eburl = string.Empty;
+            }
+            var eb = new DiscordEmbedBuilder()
                 .WithTitle("Now Playing")
-                .WithDescription($"**{track.Info.Title}**\n*{track.Info.Author}*")
-                .WithUrl(track.Info.Uri)
-                .WithColor(new DiscordColor(36, 187, 252));
-
-            if (!string.IsNullOrEmpty(track.Info.ArtworkUrl?.ToString()))
+                .WithDescription("**" + track.Info.Title + "**")
+                .AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length.ToString()}``", true))
+                .AddField(new DiscordEmbedField("Queue", $"{queuelength.ToString()}", true))
+                .AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume.ToString() + "%"}``", true))
+                .AddField(new DiscordEmbedField("Requested by", requester.Mention, true))
+                .WithColor(BotConfig.GetEmbedColor());
+            if (!string.IsNullOrEmpty(eburl))
             {
-                embed.WithThumbnail(track.Info.ArtworkUrl);
+                if (!Uri.IsWellFormedUriString(eburl, UriKind.Absolute))
+                {
+                    eburl = string.Empty;
+                }
+                else if (Uri.IsWellFormedUriString(eburl, UriKind.Absolute))
+                {
+                    eb.WithThumbnail(eburl);
+                }
             }
-
-            embed.WithFooter("LavaSharp", CurrentApplicationData.BotApplication.AvatarUrl);
-
-            return embed;
+            return eb;
         }
 
-        public static DiscordEmbedBuilder GetQueueAddedEmbed(LavalinkTrack track)
-        {
-            var embed = new DiscordEmbedBuilder()
-                .WithTitle("Added to Queue")
-                .WithDescription($"**{track.Info.Title}**\n*{track.Info.Author}* - {track.Info.Length}")
-                .WithUrl(track.Info.Uri)
-                .WithColor(new DiscordColor(36, 187, 252));
-            if (!string.IsNullOrEmpty(track.Info.ArtworkUrl?.ToString()))
-            {
-                embed.WithThumbnail(track.Info.ArtworkUrl);
-            }
-
-            embed.WithFooter("LavaSharp", CurrentApplicationData.BotApplication.AvatarUrl);
-
-            return embed;
-        }
     }
 }
