@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using System.Reflection;
+using DisCatSharp.Lavalink;
 
 namespace LavaSharp;
 
@@ -77,7 +78,14 @@ internal class Program
         appCommands.RegisterGuildCommands(Assembly.GetExecutingAssembly(), guildId);
         await discord.ConnectAsync();
         await LavalinkManager.ConnectAsync(discord);
+        await StartTasks(discord);
         await Task.Delay(-1);
+    }
+
+    private static Task StartTasks(DiscordClient discord)
+    {
+        UpdatePresence(discord);
+        return Task.CompletedTask;
     }
 
     private static Task Discord_Ready(DiscordClient sender, ReadyEventArgs e)
@@ -94,6 +102,40 @@ internal class Program
         sender.Logger.LogError($"Stacktrace: {e.Exception.GetType()}: {e.Exception.StackTrace}");
         return Task.CompletedTask;
     }
+
+
+    private static async Task UpdatePresence(DiscordClient sender)
+    {
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        while (true)
+        {
+            var config = BotConfig.GetConfig()["MainConfig"];
+            if (bool.TryParse(config["ShowCurrentSongInPresence"], out var showCurrentSongInPresence) && showCurrentSongInPresence)
+            {
+                var lava = sender.GetLavalink();
+                var node = lava.ConnectedSessions.First().Value;
+                var player = node.GetGuildPlayer(await sender.GetGuildAsync(ulong.Parse(config["DiscordServerID"])));
+
+                if (player != null && player.CurrentTrack != null)
+                {
+                    string trackTitle = player.CurrentTrack.Info.Title;
+                    if (trackTitle.Length > 64)
+                    {
+                        trackTitle = trackTitle.Substring(0, 64);
+                    }
+                    await sender.UpdateStatusAsync(new DiscordActivity(trackTitle, ActivityType.ListeningTo));
+                }
+                else
+                {
+                    await sender.UpdateStatusAsync(new DiscordActivity("Nothing", ActivityType.ListeningTo));
+                }
+            }
+            await Task.Delay(TimeSpan.FromSeconds(30));
+        }
+    }
+
+
+
 }
 
 

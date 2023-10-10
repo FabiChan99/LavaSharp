@@ -3,6 +3,7 @@ Discord_Token = TokenHere
 BotName = BotNameHere
 BotOwnerId = YourUserID
 DiscordServerID = ServerID
+ShowCurrentSongInPresence = true
 
 [EmbedConfig]
 DefaultEmbedColor = FFFFFF
