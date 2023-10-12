@@ -91,13 +91,20 @@ public class PlayCommand : ApplicationCommandsModule
             CurrentPlayData.user = ctx.User;
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"🎵 | Added **{track.Info.Title}** to the queue."));
             await ctx.Channel.SendMessageAsync(embed: EmbedGenerator.GetCurrentTrackEmbed(track, lavaPlayer));
-            lavaPlayer.TrackEnded += (sender, e) => LavaQueue.PlaybackFinished(sender, e, ctx);
+            RegisterPlaybackFinishedEvent(lavaPlayer, ctx);
             await lavaPlayer.PlayAsync(track);
             return;
         }
     }
 
-
+    private static void RegisterPlaybackFinishedEvent(LavalinkGuildPlayer player, InteractionContext ctx)
+    {
+        if (player?.CurrentTrack is null)
+        {
+            return;
+        }
+        player.TrackEnded += (sender, e) => LavaQueue.PlaybackFinished(sender, e, ctx);
+    }
 
 
     private LavalinkSearchType SearchType(LavaSourceType sourceType)
