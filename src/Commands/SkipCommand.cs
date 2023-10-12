@@ -23,10 +23,10 @@ namespace LavaSharp.Commands
             var queue = LavaQueue.queue;
             var lava = ctx.Client.GetLavalink();
             var node = lava.ConnectedSessions.First().Value;
-            var player = node.GetGuildPlayer(ctx.Guild);
-            var channel = ctx.Member.VoiceState?.Channel;
+            var player = node?.GetGuildPlayer(ctx.Guild);
+            var channel = ctx.Member?.VoiceState?.Channel;
 
-            if (player.Channel.Id != channel?.Id)
+            if (player?.Channel.Id != channel?.Id)
             {
                 var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel as me.");
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));

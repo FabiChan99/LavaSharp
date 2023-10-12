@@ -71,7 +71,7 @@ namespace LavaSharp.Helpers
                 .AddField(new DiscordEmbedField("Current Position", $"``{player.Player.PlayerState.Position:hh\\:mm\\:ss}``", true))
                 .AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true))
                 .AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume.ToString() + "%"}``", true))
-                .AddField(new DiscordEmbedField("Requested by", requester.Mention, true))
+                .AddField(new DiscordEmbedField("Requested by", requester!.Mention, true))
                 .WithColor(BotConfig.GetEmbedColor());
             if (!string.IsNullOrEmpty(eburl))
             {

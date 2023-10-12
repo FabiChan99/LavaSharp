@@ -25,7 +25,7 @@ public class PlayCommand : ApplicationCommandsModule
         var lava = ctx.Client.GetLavalink();
         var node = lava.ConnectedSessions.First().Value;
         var player = node.GetGuildPlayer(ctx.Guild);
-        var channel = ctx.Member.VoiceState?.Channel;
+        var channel = ctx.Member?.VoiceState?.Channel;
         LavalinkGuildPlayer? lavaPlayer = null;
         if (player != null && player.Channel != channel)
         {

@@ -30,14 +30,14 @@ public class SeekCommand : ApplicationCommandsModule
         var player = node.GetGuildPlayer(ctx.Guild);
         var channel = ctx.Member.VoiceState?.Channel;
 
-        if (player.Channel.Id != channel?.Id)
+        if (player?.Channel.Id != channel?.Id)
         {
             var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel as me.");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
 
-        if (player.CurrentTrack == null)
+        if (player?.CurrentTrack == null)
         {
             var errorEmbed = EmbedGenerator.GetErrorEmbed("There is no song playing.");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
