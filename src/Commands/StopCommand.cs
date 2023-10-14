@@ -35,12 +35,8 @@ namespace LavaSharp.Commands
             }
 
             await LavaQueue.DisconnectAndReset(player);
-            var StopEmbed = new DiscordEmbedBuilder();
-            StopEmbed.WithDescription("Player Destroyed.");
-            StopEmbed.WithTitle("The Player has been stopped.").WithColor(DiscordColor.Red);
-            StopEmbed.WithFooter(ctx.User.UsernameWithDiscriminator);
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder().AddEmbed(StopEmbed));
+                new DiscordInteractionResponseBuilder().WithContent("⏹ | Stopped the player and cleared the queue."));
         }
     }
 }

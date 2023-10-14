@@ -16,16 +16,16 @@ namespace LavaSharp.LavaManager
     public static class LavaQueue
     {
         public static Queue<(LavalinkTrack, DiscordUser)> queue = new();
-        public static bool isLooping;
+        public static bool isLooping = false;
 
         public static async Task DisconnectAndReset(LavalinkGuildPlayer connection)
         {
-            await connection.DisconnectAsync();
             queue.Clear();
             isLooping = false;
             CurrentPlayData.track = null;
             CurrentPlayData.player = null;
             CurrentPlayData.user = null;
+            await connection.DisconnectAsync();
         }
 
         public static async Task PlaybackFinished(LavalinkGuildPlayer sender, LavalinkTrackEndedEventArgs e,
@@ -41,8 +41,7 @@ namespace LavaSharp.LavaManager
                 await sender.PlayAsync(e.Track);
                 CurrentPlayData.track = e.Track;
                 CurrentPlayData.player = sender;
-                await ctx.FollowUpAsync(
-                    new DiscordFollowupMessageBuilder().WithContent("🔂 | Looping is active. Looping current track!"));
+                await ctx.Channel.SendMessageAsync("🔂 | Looping is active. Looping current track!");
                 await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(e.Track, sender));
                 return;
             }
