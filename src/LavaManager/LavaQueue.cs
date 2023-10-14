@@ -16,8 +16,8 @@ namespace LavaSharp.LavaManager
     public static class LavaQueue
     {
         public static Queue<(LavalinkTrack, DiscordUser)> queue = new();
-        public static bool isLooping;
-
+        public static bool isLooping = false;
+        
         public static async Task DisconnectAndReset(LavalinkGuildPlayer connection)
         {
             await connection.DisconnectAsync();
@@ -50,11 +50,13 @@ namespace LavaSharp.LavaManager
             if (queue.Count > 0)
             {
                 var nextTrack = queue.Dequeue();
+                Console.WriteLine(nextTrack.Item1.Info.SourceName);
                 CurrentPlayData.track = nextTrack.Item1;
                 CurrentPlayData.user = nextTrack.Item2;
                 CurrentPlayData.player = sender;
                 await sender.PlayAsync(nextTrack.Item1);
                 await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(nextTrack.Item1, sender));
+                return;
             }
 
             if (sender.CurrentTrack == null && queue.Count == 0 && e.Reason != LavalinkTrackEndReason.Stopped)
@@ -69,5 +71,18 @@ namespace LavaSharp.LavaManager
                 await DisconnectAndReset(sender);
             }
         }
+        public static Queue<(LavalinkTrack, DiscordUser)> ShuffleQueue(Queue<(LavalinkTrack, DiscordUser)> originalQueue)
+        {
+            Random random = new Random();
+            var shuffledQueue = new Queue<(LavalinkTrack, DiscordUser)>(originalQueue.OrderBy(x => random.Next()));
+
+            return shuffledQueue;
+        }
+
+
+        
     }
+    
+    
+    
 }
