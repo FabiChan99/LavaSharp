@@ -11,6 +11,7 @@ using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
 using DisCatSharp.Lavalink.Enums;
 using LavaSharp.Attributes;
+using LavaSharp.Enums;
 using LavaSharp.Helpers;
 using LavaSharp.LavaManager;
 
@@ -20,13 +21,7 @@ namespace LavaSharp.Commands;
 
 public class PlayCommand : ApplicationCommandsModule
 {
-    public enum LavaSourceType
-    {
-        AutoDetect,
-        YouTube,
-        Spotify,
-        SoundCloud
-    }
+
 
     [EnsureGuild]
     [EnsureMatchGuildId]
@@ -35,8 +30,7 @@ public class PlayCommand : ApplicationCommandsModule
     public static async Task Play(InteractionContext ctx,
         [Option("query", "The query to search for (URL or Song Name)")]
         string query,
-        [Option("sourcetype", "The Search source. For Links use Auto-Detect or Link")] LavaSourceType sourceType =
-            LavaSourceType.AutoDetect)
+        [Option("sourcetype", "The Search source. For Links use Auto-Detect or Link")] LavaSourceType sourceType = LavaSourceType.AutoDetect)
     {
         var lava = ctx.Client.GetLavalink();
         var node = lava.ConnectedSessions.First().Value;
@@ -46,6 +40,14 @@ public class PlayCommand : ApplicationCommandsModule
         if (player != null && player.Channel != channel)
         {
             var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel!");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
+            return;
+        }
+        
+        if (channel != null && !channel.PermissionsFor(await ctx.Client.CurrentUser.ConvertToMember(ctx.Guild)).HasPermission(Permissions.AccessChannels))
+        {
+            var errorEmbed = EmbedGenerator.GetErrorEmbed("I don't have permission to join that channel!");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
