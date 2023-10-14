@@ -191,16 +191,16 @@ public class PlayCommand : ApplicationCommandsModule
                 new DiscordWebhookBuilder().WithContent($"🎵 | Added **{tracks.Count}** tracks to the queue."));
             return;
         }
-
-        RegisterPlaybackFinishedEvent(lavaPlayer, ctx);
         if (loadType == LavalinkLoadResultType.Track || loadType == LavalinkLoadResultType.Search)
         {
             CurrentPlayData.track = track;
             CurrentPlayData.user = ctx.User;
+            CurrentPlayData.CurrentExecutionChannel = ctx.Channel;
             await ctx.EditResponseAsync(
                 new DiscordWebhookBuilder().WithContent($"🎵 | Added **{track.Info.Title}** to the queue."));
             await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(track, lavaPlayer));
             await lavaPlayer.PlayAsync(track);
+            RegisterPlaybackFinishedEvent(lavaPlayer, ctx);
             return;
         }
 
@@ -208,6 +208,7 @@ public class PlayCommand : ApplicationCommandsModule
         {
             CurrentPlayData.track = tracks.First();
             CurrentPlayData.user = ctx.User;
+            CurrentPlayData.CurrentExecutionChannel = ctx.Channel;
             foreach (var item in tracks)
             {
                 LavaQueue.queue.Enqueue((item, ctx.User));
@@ -215,11 +216,10 @@ public class PlayCommand : ApplicationCommandsModule
 
             await ctx.EditResponseAsync(
                 new DiscordWebhookBuilder().WithContent($"🎵 | Added **{tracks.Count}** tracks to the queue."));
-
+            var ftrack = LavaQueue.queue.Dequeue();
+            await lavaPlayer.PlayAsync(ftrack.Item1);
+            RegisterPlaybackFinishedEvent(lavaPlayer, ctx);
             await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(tracks.First(), lavaPlayer));
-            await lavaPlayer.PlayAsync(tracks.First());
-
-            LavaQueue.queue.Dequeue();
             return;
         }
 
@@ -233,7 +233,6 @@ public class PlayCommand : ApplicationCommandsModule
         {
             return;
         }
-
         player.TrackEnded += (sender, e) => LavaQueue.PlaybackFinished(sender, e, ctx);
     }
 

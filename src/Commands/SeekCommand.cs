@@ -22,9 +22,12 @@ public class SeekCommand : ApplicationCommandsModule
     [SlashCommand("seek", "Seeks to a certain time in the song")]
     public async Task Seek(InteractionContext ctx, [Option("time", "The time to seek to")] string timeString)
     {
-        if (!TimeParser.TryParseTime(timeString, out TimeSpan time))
+        TimeSpan time;
+
+        // Parse the time here. Assuming timeString is in the format "hh:mm:ss" or "mm:ss"
+        if (!TimeSpan.TryParseExact(timeString, new[] { "hh\\:mm\\:ss", "mm\\:ss" }, null, out time))
         {
-            var errorEmbed = EmbedGenerator.GetErrorEmbed("Invalid time format. Please use format mm:ss.");
+            var errorEmbed = EmbedGenerator.GetErrorEmbed("Invalid time format. Use 'hh:mm:ss' or 'mm:ss'.");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
@@ -61,6 +64,6 @@ public class SeekCommand : ApplicationCommandsModule
 
         await player.SeekAsync(time);
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder().WithContent($"Seeked to {time.ToString(@"mm\:ss")}"));
+            new DiscordInteractionResponseBuilder().WithContent($"⏩ | Seeked to ``{time}``"));
     }
 }

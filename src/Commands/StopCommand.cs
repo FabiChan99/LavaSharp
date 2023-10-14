@@ -20,7 +20,7 @@ namespace LavaSharp.Commands
         [EnsureMatchGuildId]
         [ApplicationRequireExecutorInVoice]
         [RequireRunningPlayer]
-        [SlashCommand("stop", "Stops the current song")]
+        [SlashCommand("stop", "Stops the player and clears the queue.")]
         public async Task Stop(InteractionContext ctx)
         {
             var lava = ctx.Client.GetLavalink();
