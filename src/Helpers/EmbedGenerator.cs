@@ -37,12 +37,20 @@ namespace LavaSharp.Helpers
 
             var eb = new DiscordEmbedBuilder()
                 .WithTitle("Now Playing")
-                .WithDescription("**" + track.Info.Title + "**")
-                .AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length:hh\\:mm\\:ss}``", true))
-                .AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true))
-                .AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume + "%"}``", true))
-                .AddField(new DiscordEmbedField("Requested by", requester.Mention, true))
-                .WithColor(BotConfig.GetEmbedColor());
+                .WithDescription("**" + track.Info.Title + "**");
+                if (track.Info.IsStream)
+                {
+                    eb.AddField(new DiscordEmbedField("Duration", $"``LIVE``", true));
+                }
+                else
+                {
+                    eb.AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length:hh\\:mm\\:ss}``", true));
+                }
+
+                eb.AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true));
+                eb.AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume + "%"}``", true));
+                eb.AddField(new DiscordEmbedField("Requested by", requester.Mention, true));
+                eb.WithColor(BotConfig.GetEmbedColor());
             if (!string.IsNullOrEmpty(eburl))
             {
                 if (!Uri.IsWellFormedUriString(eburl, UriKind.Absolute))
@@ -74,14 +82,24 @@ namespace LavaSharp.Helpers
 
             var eb = new DiscordEmbedBuilder()
                 .WithTitle("Current Playing")
-                .WithDescription("**" + track.Info.Title + "**")
-                .AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length.ToString()}``", true))
-                .AddField(new DiscordEmbedField("Current Position",
-                    $"``{player.Player.PlayerState.Position:hh\\:mm\\:ss}``", true))
-                .AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true))
-                .AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume + "%"}``", true))
-                .AddField(new DiscordEmbedField("Requested by", requester!.Mention, true))
-                .WithColor(BotConfig.GetEmbedColor());
+                .WithDescription("**" + track.Info.Title + "**");
+                if (track.Info.IsStream)
+                {
+                    eb.AddField(new DiscordEmbedField("Duration", $"``LIVE``", true));
+                    eb.AddField(new DiscordEmbedField("Current Position",
+                        $"``LIVE``", true));
+                }
+                else
+                {
+                    eb.AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length:hh\\:mm\\:ss}``", true));
+                    eb.AddField(new DiscordEmbedField("Current Position",
+                        $"``{player.Player.PlayerState.Position:hh\\:mm\\:ss}``", true));
+                }
+
+                eb.AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true));
+                eb.AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume + "%"}``", true));
+                eb.AddField(new DiscordEmbedField("Requested by", requester!.Mention, true));
+                eb.WithColor(BotConfig.GetEmbedColor());
             if (!string.IsNullOrEmpty(eburl))
             {
                 if (!Uri.IsWellFormedUriString(eburl, UriKind.Absolute))
