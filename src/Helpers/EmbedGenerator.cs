@@ -39,7 +39,7 @@ namespace LavaSharp.Helpers
                 .WithTitle("Now Playing")
                 .WithDescription("**" + track.Info.Title + "**")
                 .AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length.ToString()}``", true))
-                .AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true))
+                .AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString(@"hh\:mm\:ss")}``", true))
                 .AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume + "%"}``", true))
                 .AddField(new DiscordEmbedField("Requested by", requester.Mention, true))
                 .WithColor(BotConfig.GetEmbedColor());
@@ -73,7 +73,7 @@ namespace LavaSharp.Helpers
             }
 
             var eb = new DiscordEmbedBuilder()
-                .WithTitle("Now Playing")
+                .WithTitle("Current Playing")
                 .WithDescription("**" + track.Info.Title + "**")
                 .AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length.ToString()}``", true))
                 .AddField(new DiscordEmbedField("Current Position",
