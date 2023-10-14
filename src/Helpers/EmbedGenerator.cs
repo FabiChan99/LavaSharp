@@ -1,8 +1,12 @@
-﻿using DisCatSharp.Entities;
+﻿#region
+
+using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
 using LavaSharp.Config;
 using LavaSharp.LavaManager;
+
+#endregion
 
 namespace LavaSharp.Helpers
 {
@@ -16,6 +20,7 @@ namespace LavaSharp.Helpers
                 .WithFooter("Oops! Something went wrong.", "https://cdn.discordapp.com/emojis/755048875965939833.webp")
                 .WithColor(new DiscordColor(255, 69, 58));
         }
+
         public static DiscordEmbedBuilder GetCurrentTrackEmbed(LavalinkTrack track, LavalinkGuildPlayer player)
         {
             var requester = CurrentPlayData.user;
@@ -29,12 +34,13 @@ namespace LavaSharp.Helpers
             {
                 eburl = string.Empty;
             }
+
             var eb = new DiscordEmbedBuilder()
                 .WithTitle("Now Playing")
                 .WithDescription("**" + track.Info.Title + "**")
                 .AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length.ToString()}``", true))
                 .AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true))
-                .AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume.ToString() + "%"}``", true))
+                .AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume + "%"}``", true))
                 .AddField(new DiscordEmbedField("Requested by", requester.Mention, true))
                 .WithColor(BotConfig.GetEmbedColor());
             if (!string.IsNullOrEmpty(eburl))
@@ -48,6 +54,7 @@ namespace LavaSharp.Helpers
                     eb.WithThumbnail(eburl);
                 }
             }
+
             return eb;
         }
 
@@ -64,13 +71,15 @@ namespace LavaSharp.Helpers
             {
                 eburl = string.Empty;
             }
+
             var eb = new DiscordEmbedBuilder()
                 .WithTitle("Now Playing")
                 .WithDescription("**" + track.Info.Title + "**")
                 .AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length.ToString()}``", true))
-                .AddField(new DiscordEmbedField("Current Position", $"``{player.Player.PlayerState.Position:hh\\:mm\\:ss}``", true))
+                .AddField(new DiscordEmbedField("Current Position",
+                    $"``{player.Player.PlayerState.Position:hh\\:mm\\:ss}``", true))
                 .AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true))
-                .AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume.ToString() + "%"}``", true))
+                .AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume + "%"}``", true))
                 .AddField(new DiscordEmbedField("Requested by", requester!.Mention, true))
                 .WithColor(BotConfig.GetEmbedColor());
             if (!string.IsNullOrEmpty(eburl))
@@ -84,8 +93,8 @@ namespace LavaSharp.Helpers
                     eb.WithThumbnail(eburl);
                 }
             }
+
             return eb;
         }
-
     }
 }

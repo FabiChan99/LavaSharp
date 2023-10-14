@@ -1,4 +1,7 @@
-﻿using DisCatSharp;
+﻿#region
+
+using System.Reflection;
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
@@ -11,7 +14,8 @@ using LavaSharp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using System.Reflection;
+
+#endregion
 
 namespace LavaSharp;
 
@@ -72,7 +76,7 @@ internal class Program
         });
         var appCommands = discord.UseApplicationCommands(new ApplicationCommandsConfiguration
         {
-            ServiceProvider = serviceProvider,
+            ServiceProvider = serviceProvider
         });
         ulong guildId = ulong.Parse(BotConfig.GetConfig()["MainConfig"]["DiscordServerID"]);
         appCommands.RegisterGuildCommands(Assembly.GetExecutingAssembly(), guildId);
@@ -110,7 +114,8 @@ internal class Program
         while (true)
         {
             var config = BotConfig.GetConfig()["MainConfig"];
-            if (bool.TryParse(config["ShowCurrentSongInPresence"], out var showCurrentSongInPresence) && showCurrentSongInPresence)
+            if (bool.TryParse(config["ShowCurrentSongInPresence"], out var showCurrentSongInPresence) &&
+                showCurrentSongInPresence)
             {
                 var lava = sender.GetLavalink();
                 var node = lava.ConnectedSessions.First().Value;
@@ -123,6 +128,7 @@ internal class Program
                     {
                         trackTitle = trackTitle.Substring(0, 64);
                     }
+
                     await sender.UpdateStatusAsync(new DiscordActivity(trackTitle, ActivityType.ListeningTo));
                 }
                 else
@@ -130,14 +136,11 @@ internal class Program
                     await sender.UpdateStatusAsync(new DiscordActivity("Nothing", ActivityType.ListeningTo));
                 }
             }
+
             await Task.Delay(TimeSpan.FromSeconds(30));
         }
     }
-
-
-
 }
-
 
 public static class GlobalProperties
 {

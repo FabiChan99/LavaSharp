@@ -1,7 +1,11 @@
-﻿using DisCatSharp.Entities;
+﻿#region
+
+using DisCatSharp.Entities;
 using IniParser;
 using IniParser.Model;
 using LavaSharp.Helpers;
+
+#endregion
 
 namespace LavaSharp.Config;
 

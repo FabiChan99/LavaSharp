@@ -1,4 +1,6 @@
-﻿using DisCatSharp.ApplicationCommands.Context;
+﻿#region
+
+using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
@@ -7,12 +9,14 @@ using DisCatSharp.Lavalink.EventArgs;
 using LavaSharp.Config;
 using LavaSharp.Helpers;
 
+#endregion
+
 namespace LavaSharp.LavaManager
 {
     public static class LavaQueue
     {
         public static Queue<(LavalinkTrack, DiscordUser)> queue = new();
-        public static bool isLooping = false;
+        public static bool isLooping;
 
         public static async Task DisconnectAndReset(LavalinkGuildPlayer connection)
         {
@@ -24,7 +28,8 @@ namespace LavaSharp.LavaManager
             CurrentPlayData.user = null;
         }
 
-        public static async Task PlaybackFinished(LavalinkGuildPlayer sender, LavalinkTrackEndedEventArgs e, InteractionContext ctx)
+        public static async Task PlaybackFinished(LavalinkGuildPlayer sender, LavalinkTrackEndedEventArgs e,
+            InteractionContext ctx)
         {
             if (e.Reason == LavalinkTrackEndReason.Replaced)
             {
@@ -36,10 +41,12 @@ namespace LavaSharp.LavaManager
                 await sender.PlayAsync(e.Track);
                 CurrentPlayData.track = e.Track;
                 CurrentPlayData.player = sender;
-                await ctx.FollowUpAsync(new DiscordFollowupMessageBuilder().WithContent("🔂 | Looping is active. Looping current track!"));
+                await ctx.FollowUpAsync(
+                    new DiscordFollowupMessageBuilder().WithContent("🔂 | Looping is active. Looping current track!"));
                 await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(e.Track, sender));
                 return;
             }
+
             if (queue.Count > 0)
             {
                 var nextTrack = queue.Dequeue();
@@ -52,13 +59,13 @@ namespace LavaSharp.LavaManager
 
             if (sender.CurrentTrack == null && queue.Count == 0 && e.Reason != LavalinkTrackEndReason.Stopped)
             {
-                var finishedemb = new DiscordEmbedBuilder()
+                var finishedemb = new DiscordEmbedBuilder
                 {
                     Title = "🎵 | Queue finished!",
                     Description = "The queue has finished playing. Disconnecting...",
                     Color = BotConfig.GetEmbedColor()
                 };
-                await ctx.Channel.SendMessageAsync(embed: finishedemb);
+                await ctx.Channel.SendMessageAsync(finishedemb);
                 await DisconnectAndReset(sender);
             }
         }

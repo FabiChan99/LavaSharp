@@ -1,4 +1,6 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿#region
+
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -6,6 +8,8 @@ using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
 using LavaSharp.Attributes;
 using LavaSharp.Helpers;
+
+#endregion
 
 namespace LavaSharp.Commands;
 
@@ -25,10 +29,13 @@ public class CurrentPlayingCommand : ApplicationCommandsModule
         if (player?.CurrentTrack is null)
         {
             var errorEmbed = EmbedGenerator.GetErrorEmbed("There is no track playing!");
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
 
-        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(EmbedGenerator.GetNowPlayingEmbed(player.CurrentTrack, player)));
+        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().AddEmbed(
+                EmbedGenerator.GetNowPlayingEmbed(player.CurrentTrack, player)));
     }
 }

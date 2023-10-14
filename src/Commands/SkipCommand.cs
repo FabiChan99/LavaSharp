@@ -1,4 +1,6 @@
-﻿using DisCatSharp.ApplicationCommands;
+﻿#region
+
+using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
@@ -8,11 +10,12 @@ using LavaSharp.Attributes;
 using LavaSharp.Helpers;
 using LavaSharp.LavaManager;
 
+#endregion
+
 namespace LavaSharp.Commands
 {
     public class SkipCommand : ApplicationCommandsModule
     {
-
         [EnsureGuild]
         [EnsureMatchGuildId]
         [ApplicationRequireExecutorInVoice]
@@ -29,24 +32,27 @@ namespace LavaSharp.Commands
             if (player?.Channel.Id != channel?.Id)
             {
                 var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel as me.");
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
                 return;
             }
 
             if (queue.Count == 0)
             {
                 var errorEmbed = EmbedGenerator.GetErrorEmbed("There are no songs in the queue.");
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
                 return;
             }
+
             var track = queue.Dequeue();
 
             CurrentPlayData.track = track.Item1;
             CurrentPlayData.user = track.Item2;
             await player.PlayAsync(track.Item1);
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"⏩ | Skipped the current song."));
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().WithContent("\u23e9 | Skipped the current song."));
             await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(track.Item1, player));
-
         }
     }
 }

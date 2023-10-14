@@ -1,10 +1,14 @@
-﻿using DisCatSharp;
+﻿#region
+
+using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
+using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
+using DisCatSharp.Lavalink;
+
+#endregion
 
 namespace LavaSharp.LavaManager;
-using DisCatSharp.Enums;
-using DisCatSharp.Lavalink;
 
 [EventHandler]
 public class LavaDiscordEvents : ApplicationCommandsModule
@@ -22,6 +26,7 @@ public class LavaDiscordEvents : ApplicationCommandsModule
             {
                 return;
             }
+
             await LavaQueue.DisconnectAndReset(player);
         }
     }

@@ -1,15 +1,19 @@
-﻿using DisCatSharp;
+﻿#region
+
+using DisCatSharp;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Net;
 using LavaSharp.Config;
 using Microsoft.Extensions.Logging;
 
+#endregion
+
 namespace LavaSharp.Services;
 
 public class LavalinkManager
 {
-    public static LavalinkExtension? LavalinkExtension = null;
-    public static LavalinkSession? LavalinkSession = null;
+    public static LavalinkExtension? LavalinkExtension;
+    public static LavalinkSession? LavalinkSession;
 
     public static LavalinkConfiguration LavaConfig()
     {
