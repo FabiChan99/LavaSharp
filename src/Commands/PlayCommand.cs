@@ -9,6 +9,8 @@ using DisCatSharp.Lavalink.Enums;
 using LavaSharp.Attributes;
 using LavaSharp.Helpers;
 using LavaSharp.LavaManager;
+using System.Text.RegularExpressions;
+using DisCatSharp.Interactivity.Extensions;
 
 namespace LavaSharp.Commands;
 
@@ -50,13 +52,16 @@ public class PlayCommand : ApplicationCommandsModule
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
+        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().WithContent($"🔎 | Resolving ``{query}``..."));
+
+        query = FilterQueryIfYoutube(query);
         var loadResult = await lavaPlayer.LoadTracksAsync(ResolveSongType(query, sourceType), query);
         LavalinkTrack track = new LavalinkTrack();
         List<LavalinkTrack> tracks = new List<LavalinkTrack>();
         var loadType = loadResult.LoadType;
         try
         {
-
             if (loadResult.LoadType == LavalinkLoadResultType.Track)
             {
                 track = loadResult.GetResultAs<LavalinkTrack>();
@@ -67,8 +72,51 @@ public class PlayCommand : ApplicationCommandsModule
             }
             else if (loadResult.LoadType == LavalinkLoadResultType.Search)
             {
-                track = loadResult.GetResultAs<List<LavalinkTrack>>().First();
-                // TODO: Add a way to select a track from the search results.
+                var searchResult = loadResult.GetResultAs<List<LavalinkTrack>>();
+                var searchResultString = "";
+                var resultstrings = new List<string>();
+                if (sourceType == LavaSourceType.Spotify)
+                {
+                    for (int i = 0; i < Math.Min(searchResult.Count, 25); i++)
+                    {
+                        searchResultString += $"**{i + 1}**. [{searchResult[i].Info.Author} - {searchResult[i].Info.Title}]({searchResult[i].Info.Uri}) ``{searchResult[i].Info.Length}``\n";
+                        resultstrings.Add($"**{i + 1}**. {searchResult[i].Info.Author} - {searchResult[i].Info.Title} -- {searchResult[i].Info.Length}");
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < Math.Min(searchResult.Count, 25); i++)
+                    {
+                        searchResultString += $"**{i + 1}**. [{searchResult[i].Info.Title}]({searchResult[i].Info.Uri}) ``{searchResult[i].Info.Length}``\n";
+                        resultstrings.Add($"{i + 1}. {searchResult[i].Info.Title} -- {searchResult[i].Info.Length}");
+                    }
+                }
+                var maxOptionLength = 95;
+                var truncatedResultStrings = resultstrings.Select(s => s.Length > maxOptionLength ? s.Substring(0, maxOptionLength) : s).ToList();
+
+                var options = new List<DiscordStringSelectComponentOption>();
+                for (int i = 0; i < resultstrings.Count; i++)
+                {
+                    options.Add(new DiscordStringSelectComponentOption(truncatedResultStrings[i], i.ToString()));
+                }
+                var generatedId = Guid.NewGuid().ToString();
+                var select = new DiscordStringSelectComponent("Select a song",  options, generatedId, minOptions:1, maxOptions:1);
+                var embed = new DiscordEmbedBuilder();
+                embed.WithTitle("Search Results");
+                embed.WithDescription(searchResultString);
+                embed.WithColor(DiscordColor.Blurple);
+                embed.WithFooter($"Requested by {ctx.User.Username}#{ctx.User.Discriminator}");
+                var msg = await ctx.EditResponseAsync(new DiscordWebhookBuilder().AddEmbed(embed).AddComponents(select));
+                var interactivity = ctx.Client.GetInteractivity();
+                var result = await interactivity.WaitForSelectAsync(msg, ctx.User, generatedId, ComponentType.StringSelect, TimeSpan.FromMinutes(2));
+                if (result.TimedOut)
+                {
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("⚠️ | Timed out! No song selected."));
+                    return;
+                }
+                var selectedOption = result.Result.Values.First();
+                var selectedTrack = searchResult[int.Parse(selectedOption)];
+                track = selectedTrack;
             }
             else if (loadResult.LoadType == LavalinkLoadResultType.Error)
             {
@@ -82,76 +130,62 @@ public class PlayCommand : ApplicationCommandsModule
             {
                 throw new InvalidOperationException("Unexpected load result type.");
             }
-
-
         }
         catch (FileNotFoundException)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder().WithContent("⚠️ | No results found!"));
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"⚠️ | No results found!"));
             return;
         }
         catch (InvalidOperationException)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                                              new DiscordInteractionResponseBuilder().WithContent("❌ | An error occoured!"));
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"❌ | An error occoured!"));
             return;
         }
         bool isPlaying = lavaPlayer.CurrentTrack is not null;
-        if (isPlaying && loadType == LavalinkLoadResultType.Track || loadType == LavalinkLoadResultType.Search)
+        if (isPlaying && loadType == LavalinkLoadResultType.Track || isPlaying && loadType == LavalinkLoadResultType.Search)
         {
             LavaQueue.queue.Enqueue((track, ctx.User));
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"🎵 | Added **{track.Info.Title}** to the queue."));
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🎵 | Added **{track.Info.Title}** to the queue."));
             return;
         }
         else if (isPlaying && loadType == LavalinkLoadResultType.Playlist)
         {
-            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"🎵 | Added **{tracks.Count}** tracks to the queue."));
             foreach (var item in tracks)
             {
                 LavaQueue.queue.Enqueue((item, ctx.User));
             }
-
-            var originalmsg = await ctx.GetOriginalResponseAsync();
-            await originalmsg.ModifyAsync($"🎵 | Added **{tracks.Count}** tracks to the queue.");
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🎵 | Added **{tracks.Count}** tracks to the queue."));
             return;
         }
-
-
-        else
+        RegisterPlaybackFinishedEvent(lavaPlayer, ctx);
+        if (loadType == LavalinkLoadResultType.Track || loadType == LavalinkLoadResultType.Search)
         {
-            RegisterPlaybackFinishedEvent(lavaPlayer, ctx);
-            if (loadType == LavalinkLoadResultType.Track || loadType == LavalinkLoadResultType.Search)
-            {
-                CurrentPlayData.track = track;
-                CurrentPlayData.user = ctx.User;
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"🎵 | Added **{track.Info.Title}** to the queue."));
-                await ctx.Channel.SendMessageAsync(embed: EmbedGenerator.GetCurrentTrackEmbed(track, lavaPlayer));
-                await lavaPlayer.PlayAsync(track);
-                return;
-            }
-            else if (loadType == LavalinkLoadResultType.Playlist)
-            {
-                // same as above but with a playlist
-                CurrentPlayData.track = tracks.First();
-                CurrentPlayData.user = ctx.User;
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, new DiscordInteractionResponseBuilder().WithContent($"🎵 | Added **{tracks.Count}** tracks to the queue."));
-                foreach (var item in tracks)
-                {
-                    LavaQueue.queue.Enqueue((item, ctx.User));
-                }
-
-                var originalmsg = await ctx.GetOriginalResponseAsync();
-                await originalmsg.ModifyAsync($"🎵 | Added **{tracks.Count}** tracks to the queue.");
-            }
-            else
-            {
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                                       new DiscordInteractionResponseBuilder().WithContent("❌ | An error occoured!"));
-                return;
-            }
+            CurrentPlayData.track = track;
+            CurrentPlayData.user = ctx.User;
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🎵 | Added **{track.Info.Title}** to the queue."));
+            await ctx.Channel.SendMessageAsync(embed: EmbedGenerator.GetCurrentTrackEmbed(track, lavaPlayer));
+            await lavaPlayer.PlayAsync(track);
+            return;
         }
+        if (loadType == LavalinkLoadResultType.Playlist)
+        {
+            CurrentPlayData.track = tracks.First();
+            CurrentPlayData.user = ctx.User;
+            foreach (var item in tracks)
+            {
+                LavaQueue.queue.Enqueue((item, ctx.User));
+            }
+                
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🎵 | Added **{tracks.Count}** tracks to the queue."));
+                
+            await ctx.Channel.SendMessageAsync(embed: EmbedGenerator.GetCurrentTrackEmbed(tracks.First(), lavaPlayer));
+            await lavaPlayer.PlayAsync(tracks.First());
 
+            LavaQueue.queue.Dequeue();
+            return;
+        }
+        await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("❌ | An error occoured!"));
+        return;
     }
 
 
@@ -193,6 +227,47 @@ public class PlayCommand : ApplicationCommandsModule
         {
             return SearchType(userSourceType);
         }
+    }
+
+    private static string FilterQueryIfYoutube(string query)
+    {
+        if (RegexTemplates.YouTubeUrl.IsMatch(query))
+        {
+            if (Regex.IsMatch(query, @"((\?|&)list=RDMM\w+)(&*)"))
+            {
+                Group group = Regex.Match(query, @"((\?|&)list=RDMM\w+)(&*)", RegexOptions.ExplicitCapture);
+                var value = group.Value;
+
+                if (value.EndsWith("&"))
+                    value = value[..^1];
+
+                query = query.Replace(value, "");
+            }
+
+            if (Regex.IsMatch(query, @"((\?|&)start_radio=\d+)(&*)"))
+            {
+                Group group = Regex.Match(query, @"((\?|&)start_radio=\d+)(&*)", RegexOptions.ExplicitCapture);
+                var value = group.Value;
+
+                if (value.EndsWith("&"))
+                    value = value[..^1];
+
+                query = query.Replace(value, "");
+            }
+
+            var AndIndex = query.IndexOf("&");
+
+            if (!query.Contains('?') && AndIndex != -1)
+            {
+                query = query.Remove(AndIndex, 1);
+                query = query.Insert(AndIndex, "?");
+            }
+        }
+        else
+        {
+            return query;
+        }
+        return query;
     }
 
 
