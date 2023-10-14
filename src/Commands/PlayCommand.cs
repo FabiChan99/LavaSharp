@@ -98,9 +98,9 @@ public class PlayCommand : ApplicationCommandsModule
                     for (int i = 0; i < Math.Min(searchResult.Count, 25); i++)
                     {
                         searchResultString +=
-                            $"**{i + 1}**. [{searchResult[i].Info.Author} - {searchResult[i].Info.Title}]({searchResult[i].Info.Uri}) ``{searchResult[i].Info.Length}``\n";
+                            $"**{i + 1}**. [{searchResult[i].Info.Author} - {searchResult[i].Info.Title}]({searchResult[i].Info.Uri}) ``{searchResult[i].Info.Length:hh\\:mm\\:ss}``\n";
                         resultstrings.Add(
-                            $"**{i + 1}**. {searchResult[i].Info.Author} - {searchResult[i].Info.Title} -- {searchResult[i].Info.Length}");
+                            $"{i + 1}. {searchResult[i].Info.Author} - {searchResult[i].Info.Title} ({searchResult[i].Info.Length:hh\\:mm\\:ss})");
                     }
                 }
                 else
@@ -108,8 +108,8 @@ public class PlayCommand : ApplicationCommandsModule
                     for (int i = 0; i < Math.Min(searchResult.Count, 25); i++)
                     {
                         searchResultString +=
-                            $"**{i + 1}**. [{searchResult[i].Info.Title}]({searchResult[i].Info.Uri}) ``{searchResult[i].Info.Length}``\n";
-                        resultstrings.Add($"{i + 1}. {searchResult[i].Info.Title} -- {searchResult[i].Info.Length}");
+                            $"**{i + 1}**. [{searchResult[i].Info.Title}]({searchResult[i].Info.Uri}) ``{searchResult[i].Info.Length:hh\\:mm\\:ss}``\n";
+                        resultstrings.Add($"{i + 1}. {searchResult[i].Info.Title} ({searchResult[i].Info.Length:hh\\:mm\\:ss})");
                     }
                 }
 

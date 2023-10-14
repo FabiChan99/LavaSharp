@@ -37,7 +37,8 @@ namespace LavaSharp.Helpers
 
             var eb = new DiscordEmbedBuilder()
                 .WithTitle("Now Playing")
-                .WithDescription("**" + track.Info.Title + "**");
+                .WithDescription($"{track.Info.Author}" +
+                                 "\n**" + track.Info.Title + "**");
                 if (track.Info.IsStream)
                 {
                     eb.AddField(new DiscordEmbedField("Duration", $"``LIVE``", true));
@@ -82,7 +83,8 @@ namespace LavaSharp.Helpers
 
             var eb = new DiscordEmbedBuilder()
                 .WithTitle("Current Playing")
-                .WithDescription("**" + track.Info.Title + "**");
+                .WithDescription($"{track.Info.Author}" +
+                                 "\n**" + track.Info.Title + "**");
                 if (track.Info.IsStream)
                 {
                     eb.AddField(new DiscordEmbedField("Duration", $"``LIVE``", true));
