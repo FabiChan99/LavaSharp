@@ -19,7 +19,7 @@ public class CurrentPlayingCommand : ApplicationCommandsModule
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
     [RequireRunningPlayer]
-    [SlashCommand("current", "Shows the current playing song.")]
+    [SlashCommand("playing", "Shows the current playing song.")]
     public static async Task CurrentPlaying(InteractionContext ctx)
     {
         var lava = ctx.Client.GetLavalink();
