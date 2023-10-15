@@ -11,6 +11,7 @@ check the current status of the project.
 ## Usage
 
 As LavaSharp is still in development, there are currently no specific usage instructions.
+### Note: This is a single server bot. Each discord servers need their own instance!
 
 ## Contribution
 
