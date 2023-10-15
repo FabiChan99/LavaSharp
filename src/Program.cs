@@ -77,7 +77,7 @@ internal class Program
         });
         var appCommands = discord.UseApplicationCommands(new ApplicationCommandsConfiguration
         {
-            ServiceProvider = serviceProvider
+            ServiceProvider = serviceProvider, EnableDefaultHelp = false
         });
         ulong guildId = ulong.Parse(BotConfig.GetConfig()["MainConfig"]["DiscordServerID"]);
         appCommands.RegisterGuildCommands(Assembly.GetExecutingAssembly(), guildId);
