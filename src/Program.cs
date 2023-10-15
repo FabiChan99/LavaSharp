@@ -7,6 +7,7 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Interactivity;
+using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Interactivity.Extensions;
 using DisCatSharp.Lavalink;
 using LavaSharp.Config;
@@ -72,7 +73,7 @@ internal class Program
         discord.Ready += Discord_Ready;
         discord.UseInteractivity(new InteractivityConfiguration
         {
-            Timeout = TimeSpan.FromMinutes(5)
+            Timeout = TimeSpan.FromMinutes(5), AckPaginationButtons = true, PaginationBehaviour = PaginationBehaviour.Ignore
         });
         var appCommands = discord.UseApplicationCommands(new ApplicationCommandsConfiguration
         {
