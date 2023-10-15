@@ -15,6 +15,7 @@ public class PauseCommand : ApplicationCommandsModule
     [EnsureGuild]
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
+    [RequireRunningPlayer]
     [SlashCommand("pause", "Pauses or resumes the current track.")]
     public static async Task Pause(InteractionContext ctx)
     {
