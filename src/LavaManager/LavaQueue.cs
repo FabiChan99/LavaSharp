@@ -17,11 +17,13 @@ namespace LavaSharp.LavaManager
     {
         public static Queue<(LavalinkTrack, DiscordUser)> queue = new();
         public static bool isLooping = false;
+        public static bool isPaused = false;
 
         public static async Task DisconnectAndReset(LavalinkGuildPlayer connection)
         {
             queue.Clear();
             isLooping = false;
+            isPaused = false;
             CurrentPlayData.track = null;
             CurrentPlayData.player = null;
             CurrentPlayData.user = null;
