@@ -47,9 +47,8 @@ namespace LavaSharp.Helpers
                 {
                     eb.AddField(new DiscordEmbedField("Duration", $"``{track.Info.Length:hh\\:mm\\:ss}``", true));
                 }
-
-                eb.AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true));
                 eb.AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume + "%"}``", true));
+                eb.AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true));
                 eb.AddField(new DiscordEmbedField("Requested by", requester.Mention, true));
                 eb.WithColor(BotConfig.GetEmbedColor());
             if (!string.IsNullOrEmpty(eburl))
@@ -97,9 +96,10 @@ namespace LavaSharp.Helpers
                     eb.AddField(new DiscordEmbedField("Current Position",
                         $"``{player.Player.PlayerState.Position:hh\\:mm\\:ss}``", true));
                 }
-
-                eb.AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true));
+                
                 eb.AddField(new DiscordEmbedField("Volume", $"``{CurrentPlayData.CurrentVolume + "%"}``", true));
+                eb.AddField(new DiscordEmbedField("Queue", $"``{queuelength.ToString()}``", true));
+
                 eb.AddField(new DiscordEmbedField("Requested by", requester!.Mention, true));
                 eb.WithColor(BotConfig.GetEmbedColor());
             if (!string.IsNullOrEmpty(eburl))
