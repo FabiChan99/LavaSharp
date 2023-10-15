@@ -30,7 +30,7 @@ public class PlayCommand : ApplicationCommandsModule
     public static async Task Play(InteractionContext ctx,
         [Option("query", "The query to search for (URL or Song Name)")]
         string query,
-        [Option("sourcetype", "The Search source. For Links use Auto-Detect or Link")] LavaSourceType sourceType = LavaSourceType.AutoDetect)
+        [Option("sourcetype", "The Search source. For Links use Auto-Detect (sourceType is for Searching)")] LavaSourceType sourceType = LavaSourceType.AutoDetect)
     {
         var lava = ctx.Client.GetLavalink();
         var node = lava.ConnectedSessions.First().Value;
