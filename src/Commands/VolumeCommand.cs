@@ -24,6 +24,7 @@ public class VolumeCommand : ApplicationCommandsModule
         var node = lava.ConnectedSessions.First().Value;
         var player = node.GetGuildPlayer(ctx.Guild);
         var channel = ctx.Member.VoiceState?.Channel;
+        int maxvol = 150;
 
         if (player?.Channel.Id != channel?.Id)
         {
@@ -33,9 +34,9 @@ public class VolumeCommand : ApplicationCommandsModule
             return;
         }
 
-        if (volume > 150 || volume < 0)
+        if (volume > maxvol || volume < 0)
         {
-            var errorEmbed = EmbedGenerator.GetErrorEmbed("Volume must be between 0 and 100.");
+            var errorEmbed = EmbedGenerator.GetErrorEmbed($"Volume must be between 0 and {maxvol}.");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
