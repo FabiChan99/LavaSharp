@@ -129,7 +129,6 @@ namespace LavaSharp.Attributes
                                       ctx.Member.Permissions.HasPermission(Permissions.ManageGuild);
             if (isCtxAdminorManager)
             {
-                Console.WriteLine("User is admin or manager, skipping DJ check.");
                 isDJ = true;
             }
             var checkRoleifuserhasdj = ctx.Member.Roles.Any(x => x.Name == "DJ");
