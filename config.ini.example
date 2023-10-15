@@ -4,6 +4,7 @@ BotName = BotNameHere
 BotOwnerId = YourUserID
 DiscordServerID = ServerID
 ShowCurrentSongInPresence = true
+RequireDJRole = false
 
 [EmbedConfig]
 DefaultEmbedColor = FFFFFF

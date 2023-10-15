@@ -17,6 +17,7 @@ public class ShuffleCommand : ApplicationCommandsModule
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
     [RequireRunningPlayer]
+    [CheckDJ]
     [SlashCommand("shuffle", "Randomizes the current queue")]
     public static async Task Shuffle(InteractionContext ctx)
     {

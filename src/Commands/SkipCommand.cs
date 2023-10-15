@@ -21,6 +21,7 @@ namespace LavaSharp.Commands
         [EnsureMatchGuildId]
         [ApplicationRequireExecutorInVoice]
         [RequireRunningPlayer]
+        [CheckDJ]
         [SlashCommand("skip", "Skips the current song")]
         public async Task Skip(InteractionContext ctx,
             [Option("number_of_tracks", "[Optional] The number of tracks to skip")]

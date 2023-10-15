@@ -117,6 +117,7 @@ public class QueueCommand : ApplicationCommandsModule
     [EnsureGuild]
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
+    [CheckDJ]
     [SlashCommand("clear", "Clears the queue.")]
     public static async Task ClearQueue(InteractionContext ctx)
     {
@@ -157,6 +158,7 @@ public class QueueCommand : ApplicationCommandsModule
     [EnsureMatchGuildId]
     [RequireRunningPlayer]
     [ApplicationRequireExecutorInVoice]
+    [CheckDJ]
     [SlashCommand("removesong", "Removes a song from the queue. (Get the song number from the '/queue current' command)")]
     public static async Task RemoveSong(InteractionContext ctx, [Option("songnumber", "The song number to remove.")] int songnumber)
     {

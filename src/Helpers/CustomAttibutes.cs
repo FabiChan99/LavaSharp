@@ -80,4 +80,72 @@ namespace LavaSharp.Attributes
             return true;
         }
     }
+    
+    public sealed class CheckDJ : ApplicationCommandCheckBaseAttribute
+    {
+        public override async Task<bool> ExecuteChecksAsync(BaseContext ctx)
+        {
+
+            IReadOnlyCollection<DiscordMember> voicemembers = ctx.Member.VoiceState.Channel.Users;
+            bool isPlaying = false;
+            try
+            {
+                var ct = ctx.Client.GetLavalink().ConnectedSessions!.First().Value.GetGuildPlayer(ctx.Guild).CurrentTrack;
+                if (ct != null)
+                {
+                    isPlaying = true;
+                }
+            }
+            catch (Exception )
+            {
+                isPlaying = false;
+            }
+
+            if (!isPlaying)
+            {
+                if (voicemembers.Count == 1)
+                {
+                    return true;
+                }
+            }
+            else if (isPlaying)
+            {
+                if (voicemembers.Count == 2)
+                {
+                    if (voicemembers.Any(x => x.Id == ctx.Client.CurrentUser.Id) && voicemembers.Any(x => x.Id == ctx.Member.Id))
+                    {
+                        return true;
+                    }
+                }
+            }
+            
+            bool djconf = bool.Parse(BotConfig.GetConfig()["MainConfig"]["RequireDJRole"]);
+            if (!djconf)
+            {
+                return true;
+            }
+            bool isDJ = false;
+            bool isCtxAdminorManager = ctx.Member.Permissions.HasPermission(Permissions.Administrator) ||
+                                      ctx.Member.Permissions.HasPermission(Permissions.ManageGuild);
+            if (isCtxAdminorManager)
+            {
+                Console.WriteLine("User is admin or manager, skipping DJ check.");
+                isDJ = true;
+            }
+            var checkRoleifuserhasdj = ctx.Member.Roles.Any(x => x.Name == "DJ");
+            if (checkRoleifuserhasdj)
+            {
+                isDJ = true;
+            }
+            if (!isDJ)
+            {
+                DiscordEmbedBuilder errorembed = EmbedGenerator.GetErrorEmbed("You must have a DJ role called ``DJ`` to use this command.");
+                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder().AddEmbed(errorembed));
+                return false;
+            }
+            return isDJ;
+
+        }
+    }
 }

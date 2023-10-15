@@ -16,6 +16,7 @@ public class LoopCommand : ApplicationCommandsModule
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
     [RequireRunningPlayer]
+    [CheckDJ]
     [SlashCommand("loop", "Toggle looping for the current track.")]
     public static async Task Loop(InteractionContext ctx)
     {

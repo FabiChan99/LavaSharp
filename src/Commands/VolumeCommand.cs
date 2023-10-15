@@ -17,6 +17,7 @@ public class VolumeCommand : ApplicationCommandsModule
     [EnsureMatchGuildId]
     [RequireRunningPlayer]
     [ApplicationRequireExecutorInVoice]
+    [CheckDJ]
     [SlashCommand("Volume", "Changes the volume of the player.")]
     public static async Task Volume(InteractionContext ctx, [Option("percentage", "The volume to set.")] int volume)
     {

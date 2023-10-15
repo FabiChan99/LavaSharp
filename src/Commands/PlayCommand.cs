@@ -26,6 +26,7 @@ public class PlayCommand : ApplicationCommandsModule
     [EnsureGuild]
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
+    [CheckDJ]
     [SlashCommand("play", "Plays a song.")]
     public static async Task Play(InteractionContext ctx,
         [Option("query", "The query to search for (URL or Song Name)")]

@@ -20,6 +20,7 @@ namespace LavaSharp.Commands
         [EnsureMatchGuildId]
         [ApplicationRequireExecutorInVoice]
         [RequireRunningPlayer]
+        [CheckDJ]
         [SlashCommand("stop", "Stops the player and clears the queue.")]
         public async Task Stop(InteractionContext ctx)
         {

@@ -19,6 +19,7 @@ public class SeekCommand : ApplicationCommandsModule
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
     [RequireRunningPlayer]
+    [CheckDJ]
     [SlashCommand("seek", "Seeks to a certain time in the song")]
     public async Task Seek(InteractionContext ctx, [Option("time", "The time to seek to")] string timeString)
     {
