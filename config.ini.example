@@ -5,6 +5,7 @@ BotOwnerId = YourUserID
 DiscordServerID = ServerID
 ShowCurrentSongInPresence = true
 RequireDJRole = false
+SkipAndStopButtons = true
 
 [EmbedConfig]
 DefaultEmbedColor = FFFFFF

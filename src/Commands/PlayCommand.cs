@@ -199,7 +199,7 @@ public class PlayCommand : ApplicationCommandsModule
             CurrentPlayData.CurrentExecutionChannel = ctx.Channel;
             await ctx.EditResponseAsync(
                 new DiscordWebhookBuilder().WithContent($"🎵 | Added **{track.Info.Title}** to the queue."));
-            await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(track, lavaPlayer));
+            await NowPlaying.sendNowPlayingTrack(ctx, track);
             await lavaPlayer.PlayAsync(track);
             RegisterPlaybackFinishedEvent(lavaPlayer, ctx);
             return;
@@ -220,7 +220,7 @@ public class PlayCommand : ApplicationCommandsModule
             var ftrack = LavaQueue.queue.Dequeue();
             await lavaPlayer.PlayAsync(ftrack.Item1);
             RegisterPlaybackFinishedEvent(lavaPlayer, ctx);
-            await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(tracks.First(), lavaPlayer));
+            await NowPlaying.sendNowPlayingTrack(ctx, ftrack.Item1);
             return;
         }
 

@@ -68,7 +68,7 @@ namespace LavaSharp.Commands
                 await player.PlayAsync(track.Item1);
                 await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                     new DiscordInteractionResponseBuilder().WithContent("⏭️ | Skipped the current song."));
-                await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(track.Item1, player));
+                await NowPlaying.sendNowPlayingTrack(ctx, track.Item1);
                 return;
             }
             if (tracksToSkip >= 2)
@@ -85,7 +85,7 @@ namespace LavaSharp.Commands
                 }
                 await player.PlayAsync(targettrack);
                 await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"⏭️ | Skipped ``{tracksToSkip}`` songs."));
-                await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(CurrentPlayData.track, player));
+                await NowPlaying.sendNowPlayingTrack(ctx, targettrack);
                 return;
             }
 

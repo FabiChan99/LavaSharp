@@ -28,6 +28,9 @@ namespace LavaSharp.LavaManager
             CurrentPlayData.player = null;
             CurrentPlayData.user = null;
             CurrentPlayData.CurrentVolume = 100;
+            await NowPlaying.TryRemoveButtonsFromMessage(CurrentPlayData.CurrentNowPlayingMessageId);
+            CurrentPlayData.CurrentExecutionChannel = null!;
+            CurrentPlayData.CurrentNowPlayingMessageId = 0;
             await connection.DisconnectAsync();
         }
 
@@ -45,7 +48,7 @@ namespace LavaSharp.LavaManager
                 CurrentPlayData.track = e.Track;
                 CurrentPlayData.player = sender;
                 await ctx.Channel.SendMessageAsync("🔂 | Looping is active. Looping current track!");
-                await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(e.Track, sender));
+                await NowPlaying.sendNowPlayingTrack(ctx, e.Track);
                 return;
             }
 
@@ -56,18 +59,12 @@ namespace LavaSharp.LavaManager
                 CurrentPlayData.user = nextTrack.Item2;
                 CurrentPlayData.player = sender;
                 await sender.PlayAsync(nextTrack.Item1);
-                await ctx.Channel.SendMessageAsync(EmbedGenerator.GetCurrentTrackEmbed(nextTrack.Item1, sender));
+                await NowPlaying.sendNowPlayingTrack(ctx, nextTrack.Item1);
             }
 
             if (sender.CurrentTrack == null && queue.Count == 0 && e.Reason != LavalinkTrackEndReason.Stopped)
             {
-                var finishedemb = new DiscordEmbedBuilder
-                {
-                    Title = "🎵 | Queue finished!",
-                    Description = "The queue has finished playing. Disconnecting...",
-                    Color = BotConfig.GetEmbedColor()
-                };
-                await ctx.Channel.SendMessageAsync(finishedemb);
+                await ctx.Channel.SendMessageAsync("⏹️ | Queue is empty. Stopping player and leaving voice channel.");
                 await DisconnectAndReset(sender);
             }
         }
