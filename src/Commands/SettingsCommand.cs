@@ -12,7 +12,6 @@ namespace LavaSharp.Commands;
 [SlashCommandGroup("settings", "Change the bot's settings.")]
 public class SettingsCommand : ApplicationCommandsModule
 {
-    [ApplicationCommandRequireUserPermissions(Permissions.ManageGuild)]
     [SlashCommand("RequireDJRole", "Enable or disable the DJ role requirement.")]
     public async Task RequireDJRole(InteractionContext ctx, [Option("setActive", "Set the active state.")] bool setActive)
     {
@@ -27,7 +26,7 @@ public class SettingsCommand : ApplicationCommandsModule
         }
         BotConfig.SetConfig("MainConfig", "RequireDJRole", setActive.ToString());
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder().WithContent("🛠️ | The DJ role requirement has been " + (setActive ? "``enabled``" : "``disabled``") + "."));
+            new DiscordInteractionResponseBuilder().WithContent("🛠️ | The DJ role requirement has been " + (setActive ? "``enabled``" : "``disabled``") + ".").AsEphemeral());
     }
     [SlashCommand("SkipAndStopButtons", "Enable or disable the skip and stop buttons in the Now Playing embed.")]
     public async Task SkipAndStopButtons(InteractionContext ctx, [Option("setActive", "Set the active state.")] bool setActive)
@@ -43,7 +42,7 @@ public class SettingsCommand : ApplicationCommandsModule
         }
         BotConfig.SetConfig("MainConfig", "SkipAndStopButtons", setActive.ToString());
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder().WithContent("??️ | The skip and stop buttons have been " + (setActive ? "``enabled``" : "``disabled``") + "."));
+            new DiscordInteractionResponseBuilder().WithContent("🛠️ | The skip and stop buttons have been " + (setActive ? "``enabled``" : "``disabled``") + ".").AsEphemeral());
     }
     
     [SlashCommand("ShowCurrentSongInPresence", "Enable or disable the current song in presence.")]
@@ -59,9 +58,8 @@ public class SettingsCommand : ApplicationCommandsModule
             return;
         }
         BotConfig.SetConfig("MainConfig", "ShowCurrentSongInPresence", setActive.ToString());
-        // without embed
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder().WithContent("??️ | The current song in presence has been " + (setActive ? "``enabled``" : "``disabled``") + "."));
+            new DiscordInteractionResponseBuilder().WithContent("🛠️ | The current song in presence has been " + (setActive ? "``enabled``" : "``disabled``") + ".").AsEphemeral());
     }
     
 }

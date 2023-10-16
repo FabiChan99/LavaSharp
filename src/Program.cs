@@ -3,6 +3,9 @@
 using System.Reflection;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
+using DisCatSharp.ApplicationCommands.Attributes;
+using DisCatSharp.ApplicationCommands.EventArgs;
+using DisCatSharp.ApplicationCommands.Exceptions;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
@@ -11,6 +14,7 @@ using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Interactivity.Extensions;
 using DisCatSharp.Lavalink;
 using LavaSharp.Config;
+using LavaSharp.Helpers;
 using LavaSharp.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -79,6 +83,7 @@ internal class Program
         {
             ServiceProvider = serviceProvider, EnableDefaultHelp = false
         });
+        appCommands.SlashCommandErrored += Discord_SlashCommandErrored;
         ulong guildId = ulong.Parse(BotConfig.GetConfig()["MainConfig"]["DiscordServerID"]);
         appCommands.RegisterGuildCommands(Assembly.GetExecutingAssembly(), guildId);
         await discord.ConnectAsync();
@@ -100,9 +105,32 @@ internal class Program
         CurrentApplicationData.BotApplication = sender.CurrentUser;
         return Task.CompletedTask;
     }
+    
+    private static async Task Discord_SlashCommandErrored(ApplicationCommandsExtension sender, SlashCommandErrorEventArgs e)
+    {
+        if (e.Exception is SlashExecutionChecksFailedException)
+        {
+            var ex = (SlashExecutionChecksFailedException) e.Exception;
+            if (ex.FailedChecks.Any(x => x is ApplicationCommandRequireUserPermissionsAttribute))
+            {
+                var embed = EmbedGenerator.GetErrorEmbed("You don't have the required permissions to execute this command.");
+                await e.Context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                    new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral());
+                e.Handled = true;
+                return;
+            }
+            e.Handled = true;
+            return;
+        }
+    }
 
     private static Task Discord_ClientErrored(DiscordClient sender, ClientErrorEventArgs e)
     {
+        if (e.Exception is SlashExecutionChecksFailedException)
+        {
+            e.Handled = true;
+            return Task.CompletedTask;
+        }
         sender.Logger.LogError($"Exception occured: {e.Exception.GetType()}: {e.Exception.Message}");
         sender.Logger.LogError($"Stacktrace: {e.Exception.GetType()}: {e.Exception.StackTrace}");
         return Task.CompletedTask;
