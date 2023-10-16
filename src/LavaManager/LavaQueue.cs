@@ -27,6 +27,7 @@ namespace LavaSharp.LavaManager
             CurrentPlayData.track = null;
             CurrentPlayData.player = null;
             CurrentPlayData.user = null;
+            CurrentPlayData.CurrentVolume = 100;
             await connection.DisconnectAsync();
         }
 
