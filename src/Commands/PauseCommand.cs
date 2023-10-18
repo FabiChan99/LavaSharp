@@ -32,6 +32,7 @@ public class PauseCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
+
         if (player?.Channel.Id != channel?.Id)
         {
             var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel as me.");
@@ -53,6 +54,5 @@ public class PauseCommand : ApplicationCommandsModule
         await player.PauseAsync();
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder().WithContent("⏸️ | Pausing the player."));
-        return;
     }
 }

@@ -21,8 +21,6 @@ namespace LavaSharp.Commands;
 
 public class PlayCommand : ApplicationCommandsModule
 {
-
-
     [EnsureGuild]
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
@@ -31,7 +29,8 @@ public class PlayCommand : ApplicationCommandsModule
     public static async Task Play(InteractionContext ctx,
         [Option("query", "The query to search for (URL or Song Name)")]
         string query,
-        [Option("sourcetype", "The Search source. For Links use Auto-Detect (sourceType is for Searching)")] LavaSourceType sourceType = LavaSourceType.AutoDetect)
+        [Option("sourcetype", "The Search source. For Links use Auto-Detect (sourceType is for Searching)")]
+        LavaSourceType sourceType = LavaSourceType.AutoDetect)
     {
         var lava = ctx.Client.GetLavalink();
         var node = lava.ConnectedSessions.First().Value;
@@ -45,8 +44,9 @@ public class PlayCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
-        
-        if (channel != null && !channel.PermissionsFor(await ctx.Client.CurrentUser.ConvertToMember(ctx.Guild)).HasPermission(Permissions.AccessChannels))
+
+        if (channel != null && !channel.PermissionsFor(await ctx.Client.CurrentUser.ConvertToMember(ctx.Guild))
+                .HasPermission(Permissions.AccessChannels))
         {
             var errorEmbed = EmbedGenerator.GetErrorEmbed("I don't have permission to join that channel!");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
@@ -76,8 +76,8 @@ public class PlayCommand : ApplicationCommandsModule
 
         query = FilterQueryIfYoutube(query);
         var loadResult = await lavaPlayer.LoadTracksAsync(ResolveSongType(query, sourceType), query);
-        LavalinkTrack track = new LavalinkTrack();
-        List<LavalinkTrack> tracks = new List<LavalinkTrack>();
+        LavalinkTrack track = new();
+        List<LavalinkTrack> tracks = new();
         var loadType = loadResult.LoadType;
         try
         {
@@ -110,7 +110,8 @@ public class PlayCommand : ApplicationCommandsModule
                     {
                         searchResultString +=
                             $"**{i + 1}**. [{searchResult[i].Info.Title}]({searchResult[i].Info.Uri}) ``{searchResult[i].Info.Length:hh\\:mm\\:ss}``\n";
-                        resultstrings.Add($"{i + 1}. {searchResult[i].Info.Title} ({searchResult[i].Info.Length:hh\\:mm\\:ss})");
+                        resultstrings.Add(
+                            $"{i + 1}. {searchResult[i].Info.Title} ({searchResult[i].Info.Length:hh\\:mm\\:ss})");
                     }
                 }
 
@@ -172,8 +173,8 @@ public class PlayCommand : ApplicationCommandsModule
         }
 
         bool isPlaying = lavaPlayer.CurrentTrack is not null;
-        if (isPlaying && loadType == LavalinkLoadResultType.Track ||
-            isPlaying && loadType == LavalinkLoadResultType.Search)
+        if ((isPlaying && loadType == LavalinkLoadResultType.Track) ||
+            (isPlaying && loadType == LavalinkLoadResultType.Search))
         {
             LavaQueue.queue.Enqueue((track, ctx.User));
             await ctx.EditResponseAsync(
@@ -192,6 +193,7 @@ public class PlayCommand : ApplicationCommandsModule
                 new DiscordWebhookBuilder().WithContent($"🎵 | Added **{tracks.Count}** tracks to the queue."));
             return;
         }
+
         if (loadType == LavalinkLoadResultType.Track || loadType == LavalinkLoadResultType.Search)
         {
             CurrentPlayData.track = track;
@@ -234,6 +236,7 @@ public class PlayCommand : ApplicationCommandsModule
         {
             return;
         }
+
         player.TrackEnded += (sender, e) => LavaQueue.PlaybackFinished(sender, e, ctx);
     }
 

@@ -4,7 +4,6 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
-using DisCatSharp.Lavalink.Entities;
 using LavaSharp.Attributes;
 using LavaSharp.Helpers;
 using LavaSharp.LavaManager;
@@ -34,6 +33,7 @@ public class ShuffleCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
+
         if (queue.Count < 2)
         {
             var errorEmbed = EmbedGenerator.GetErrorEmbed("There are not enough songs in the queue to shuffle.");
@@ -41,6 +41,7 @@ public class ShuffleCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
+
         try
         {
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
@@ -51,11 +52,14 @@ public class ShuffleCommand : ApplicationCommandsModule
             {
                 queue.Enqueue(item);
             }
+
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("🔀 | Queue shuffeled!"));
         }
         catch (Exception e)
         {
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🔀 | An error occured while randomizing the Queue:```{e.Message}```"));
+            await ctx.EditResponseAsync(
+                new DiscordWebhookBuilder().WithContent(
+                    $"🔀 | An error occured while randomizing the Queue:```{e.Message}```"));
         }
     }
 }

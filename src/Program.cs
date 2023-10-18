@@ -49,7 +49,7 @@ internal class Program
         string DcApiToken = "";
         try
         {
-            DcApiToken = BotConfig.GetConfig("MainConfig","Discord_Token");
+            DcApiToken = BotConfig.GetConfig("MainConfig", "Discord_Token");
         }
         catch
         {
@@ -78,14 +78,17 @@ internal class Program
         discord.Ready += Discord_Ready;
         discord.UseInteractivity(new InteractivityConfiguration
         {
-            Timeout = TimeSpan.FromMinutes(5), AckPaginationButtons = true, PaginationBehaviour = PaginationBehaviour.Ignore
+            Timeout = TimeSpan.FromMinutes(5),
+            AckPaginationButtons = true,
+            PaginationBehaviour = PaginationBehaviour.Ignore
         });
         var appCommands = discord.UseApplicationCommands(new ApplicationCommandsConfiguration
         {
-            ServiceProvider = serviceProvider, EnableDefaultHelp = false
+            ServiceProvider = serviceProvider,
+            EnableDefaultHelp = false
         });
         appCommands.SlashCommandErrored += Discord_SlashCommandErrored;
-        ulong guildId = ulong.Parse(BotConfig.GetConfig("MainConfig","DiscordServerID"));
+        ulong guildId = ulong.Parse(BotConfig.GetConfig("MainConfig", "DiscordServerID"));
         appCommands.RegisterGuildCommands(Assembly.GetExecutingAssembly(), guildId);
         await discord.ConnectAsync();
         await LavalinkManager.ConnectAsync(discord);
@@ -106,22 +109,24 @@ internal class Program
         CurrentApplicationData.BotApplication = sender.CurrentUser;
         return Task.CompletedTask;
     }
-    
-    private static async Task Discord_SlashCommandErrored(ApplicationCommandsExtension sender, SlashCommandErrorEventArgs e)
+
+    private static async Task Discord_SlashCommandErrored(ApplicationCommandsExtension sender,
+        SlashCommandErrorEventArgs e)
     {
         if (e.Exception is SlashExecutionChecksFailedException)
         {
-            var ex = (SlashExecutionChecksFailedException) e.Exception;
+            var ex = (SlashExecutionChecksFailedException)e.Exception;
             if (ex.FailedChecks.Any(x => x is ApplicationCommandRequireUserPermissionsAttribute))
             {
-                var embed = EmbedGenerator.GetErrorEmbed("You don't have the required permissions to execute this command.");
+                var embed = EmbedGenerator.GetErrorEmbed(
+                    "You don't have the required permissions to execute this command.");
                 await e.Context.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                     new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral());
                 e.Handled = true;
                 return;
             }
+
             e.Handled = true;
-            return;
         }
     }
 
@@ -133,18 +138,18 @@ internal class Program
             return Task.CompletedTask;
         }
 
-        if (e.Exception is DisCatSharp.Exceptions.NotFoundException)
+        if (e.Exception is NotFoundException)
         {
             e.Handled = true;
             return Task.CompletedTask;
         }
-        
-        if (e.Exception is DisCatSharp.Exceptions.BadRequestException)
+
+        if (e.Exception is BadRequestException)
         {
             e.Handled = true;
             return Task.CompletedTask;
         }
-        
+
         sender.Logger.LogError($"Exception occured: {e.Exception.GetType()}: {e.Exception.Message}");
         sender.Logger.LogError($"Stacktrace: {e.Exception.GetType()}: {e.Exception.StackTrace}");
         return Task.CompletedTask;
@@ -156,7 +161,8 @@ internal class Program
         await Task.Delay(TimeSpan.FromSeconds(5));
         while (true)
         {
-            var showCurrentSongInPresence = bool.Parse(BotConfig.GetConfig("MainConfig", "ShowCurrentSongInPresence") ?? "false");
+            var showCurrentSongInPresence =
+                bool.Parse(BotConfig.GetConfig("MainConfig", "ShowCurrentSongInPresence") ?? "false");
 
             if (showCurrentSongInPresence)
             {
@@ -179,17 +185,16 @@ internal class Program
                 else
                 {
                     await sender.UpdateStatusAsync(new DiscordActivity(
-                        $"No songs playing.", ActivityType.Custom));
+                        "No songs playing.", ActivityType.Custom));
                 }
             }
 
             await Task.Delay(TimeSpan.FromSeconds(30));
         }
     }
-
 }
 
 public static class GlobalProperties
 {
-    public static ulong BotOwnerId { get; } = ulong.Parse(BotConfig.GetConfig("MainConfig","BotOwnerId"));
+    public static ulong BotOwnerId { get; } = ulong.Parse(BotConfig.GetConfig("MainConfig", "BotOwnerId"));
 }

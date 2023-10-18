@@ -17,9 +17,9 @@ public class LavalinkManager
 
     public static LavalinkConfiguration LavaConfig()
     {
-        string LHost = BotConfig.GetConfig("Lavalink","Host");
-        int LPort = int.Parse(BotConfig.GetConfig("Lavalink","Port"));
-        string LPass = BotConfig.GetConfig("Lavalink","Password");
+        string LHost = BotConfig.GetConfig("Lavalink", "Host");
+        int LPort = int.Parse(BotConfig.GetConfig("Lavalink", "Port"));
+        string LPass = BotConfig.GetConfig("Lavalink", "Password");
         var endpoint = new ConnectionEndpoint
         {
             Hostname = LHost,

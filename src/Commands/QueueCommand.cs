@@ -16,7 +16,6 @@ using LavaSharp.LavaManager;
 
 namespace LavaSharp.Commands;
 
-
 [SlashCommandGroup("queue", "Queue commands.")]
 public class QueueCommand : ApplicationCommandsModule
 {
@@ -38,6 +37,7 @@ public class QueueCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
+
         if (player?.Channel.Id != channel?.Id)
         {
             var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel as me.");
@@ -45,7 +45,7 @@ public class QueueCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
-        
+
 
         var queue = LavaQueue.queue;
 
@@ -56,20 +56,21 @@ public class QueueCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
-        
+
         // acknowledge the interaction
-        
+
         // Paginate the queue
         var pages = new List<Page>();
         var queueList = queue.ToList();
         var queueString = new StringBuilder();
         var i = 1;
 
-        List<LavalinkTrack> tracks = new List<LavalinkTrack>();
+        List<LavalinkTrack> tracks = new();
         foreach (var item in queue)
         {
             tracks.Add(item.Item1);
         }
+
         // get the total length of the queue
         var totalTime = new TimeSpan();
 
@@ -79,8 +80,9 @@ public class QueueCommand : ApplicationCommandsModule
         }
 
 
-        string formattedTime = $"{(int)totalTime.TotalDays} Days, {totalTime.Hours} Hours, {totalTime.Minutes} Minutes, {totalTime.Seconds} Seconds";
-        
+        string formattedTime =
+            $"{(int)totalTime.TotalDays} Days, {totalTime.Hours} Hours, {totalTime.Minutes} Minutes, {totalTime.Seconds} Seconds";
+
         foreach (var item in queueList)
         {
             queueString.AppendLine(
@@ -92,9 +94,13 @@ public class QueueCommand : ApplicationCommandsModule
                 eb.WithTitle("Queue");
                 eb.WithDescription(queueString.ToString());
                 eb.WithColor(BotConfig.GetEmbedColor());
-                eb.WithFooter($"Requested by {ctx.Member.DisplayName} | Page {pages.Count + 1} of {Math.Ceiling((double) queue.Count / 25)}", ctx.Member.AvatarUrl);
+                eb.WithFooter(
+                    $"Requested by {ctx.Member.DisplayName} | Page {pages.Count + 1} of {Math.Ceiling((double)queue.Count / 25)}",
+                    ctx.Member.AvatarUrl);
                 eb.WithTimestamp(DateTime.Now);
-                pages.Add(new Page(embed: eb, content:$"🎵 | Showing the queue. There are {queue.Count} songs in the queue with a total length of ``{formattedTime}``." ));
+                pages.Add(new Page(embed: eb,
+                    content:
+                    $"🎵 | Showing the queue. There are {queue.Count} songs in the queue with a total length of ``{formattedTime}``."));
                 queueString.Clear();
             }
         }
@@ -108,7 +114,9 @@ public class QueueCommand : ApplicationCommandsModule
             eb.WithColor(BotConfig.GetEmbedColor());
             eb.WithFooter($"Requested by {ctx.Member.DisplayName} | Page {pages.Count + 1}", ctx.Member.AvatarUrl);
             eb.WithTimestamp(DateTime.Now);
-            pages.Add(new Page(embed: eb, content:$"🎵 | Showing the queue. There are {queue.Count} songs in the queue with a total length of ``{formattedTime}``." ));
+            pages.Add(new Page(embed: eb,
+                content:
+                $"🎵 | Showing the queue. There are {queue.Count} songs in the queue with a total length of ``{formattedTime}``."));
         }
 
         await ctx.Interaction.SendPaginatedResponseAsync(false, false, ctx.User, pages);
@@ -133,6 +141,7 @@ public class QueueCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
+
         if (player?.Channel.Id != channel?.Id)
         {
             var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel as me.");
@@ -153,14 +162,17 @@ public class QueueCommand : ApplicationCommandsModule
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder().WithContent("🗑️ | Cleared the queue."));
     }
-    
+
     [EnsureGuild]
     [EnsureMatchGuildId]
     [RequireRunningPlayer]
     [ApplicationRequireExecutorInVoice]
     [CheckDJ]
-    [SlashCommand("removesong", "Removes a song from the queue. (Get the song number from the '/queue current' command)")]
-    public static async Task RemoveSong(InteractionContext ctx, [Option("songnumber", "The song number to remove.")] int songnumber)
+    [SlashCommand("removesong",
+        "Removes a song from the queue. (Get the song number from the '/queue current' command)")]
+    public static async Task RemoveSong(InteractionContext ctx,
+        [Option("songnumber", "The song number to remove.")]
+        int songnumber)
     {
         var lava = ctx.Client.GetLavalink();
         var node = lava.ConnectedSessions.First().Value;
@@ -177,14 +189,17 @@ public class QueueCommand : ApplicationCommandsModule
 
         if (songnumber > LavaQueue.queue.Count || songnumber < 1)
         {
-            var errorEmbed = EmbedGenerator.GetErrorEmbed($"Song number must be between 1 and the queue length ({LavaQueue.queue.Count}).");
+            var errorEmbed =
+                EmbedGenerator.GetErrorEmbed(
+                    $"Song number must be between 1 and the queue length ({LavaQueue.queue.Count}).");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
+
         var queueList = LavaQueue.queue.ToList();
         var tracktoRemove = queueList[songnumber - 1];
-        
+
         var eb = new DiscordEmbedBuilder();
         eb.WithTitle("Songremover");
         eb.WithDescription($"Are you sure you want to remove ``{tracktoRemove.Item1.Info.Title}`` from the queue?");
@@ -201,28 +216,34 @@ public class QueueCommand : ApplicationCommandsModule
         irb.AddComponents(buttons);
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, irb);
         var interactivity = ctx.Client.GetInteractivity();
+
         bool MatchAuthor(ComponentInteractionCreateEventArgs args)
         {
             return args.User.Id == ctx.User.Id;
         }
-        var result = await interactivity.WaitForButtonAsync(await ctx.GetOriginalResponseAsync(), MatchAuthor, TimeSpan.FromSeconds(45));
+
+        var result = await interactivity.WaitForButtonAsync(await ctx.GetOriginalResponseAsync(), MatchAuthor,
+            TimeSpan.FromSeconds(45));
         if (result.TimedOut)
         {
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("⏱️ | Timed out - Songremoval cancelled."));
+            await ctx.EditResponseAsync(
+                new DiscordWebhookBuilder().WithContent("⏱️ | Timed out - Songremoval cancelled."));
             return;
         }
+
         if (result.Result.Id == "no")
         {
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("🚫 | Cancelled."));
             return;
         }
-        
+
         if (queueList[songnumber - 1].Item1 != tracktoRemove.Item1)
         {
-            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("🚫 | The queue has changed. Please try again."));
+            await ctx.EditResponseAsync(
+                new DiscordWebhookBuilder().WithContent("🚫 | The queue has changed. Please try again."));
             return;
         }
-        
+
         queueList.RemoveAt(songnumber - 1);
         LavaQueue.queue = new Queue<(LavalinkTrack, DiscordUser)>(queueList);
         var volstr = $"🗑️ | Removed song number ``{songnumber}`` from the queue.";

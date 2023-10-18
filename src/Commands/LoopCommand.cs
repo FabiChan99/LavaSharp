@@ -50,10 +50,9 @@ public class LoopCommand : ApplicationCommandsModule
         {
             LavaQueue.isLooping = true;
         }
-        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-            new DiscordInteractionResponseBuilder().WithContent($"🔂 | Looping is now set to ``{LavaQueue.isLooping}``"));
-        return;
-        
 
+        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().WithContent(
+                $"🔂 | Looping is now set to ``{LavaQueue.isLooping}``"));
     }
 }

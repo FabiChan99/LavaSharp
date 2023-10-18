@@ -4,10 +4,8 @@ using DisCatSharp.ApplicationCommands.Context;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.Lavalink;
-using DisCatSharp.Lavalink.Entities;
 using LavaSharp.Attributes;
 using LavaSharp.Helpers;
-using LavaSharp.LavaManager;
 
 namespace LavaSharp.Commands;
 
@@ -42,13 +40,16 @@ public class VolumeCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
+
         CurrentPlayData.CurrentVolume = volume;
         await player.SetVolumeAsync(volume);
         var volstr = $"🔊 | Volume set to ``{volume}%``.";
         if (volume > 100)
         {
-            volstr = $"🔊 | Volume set to ``{volume}%``. Warning: Volume is above 100%. This may cause audio distortion.";
+            volstr =
+                $"🔊 | Volume set to ``{volume}%``. Warning: Volume is above 100%. This may cause audio distortion.";
         }
+
         await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
             new DiscordInteractionResponseBuilder().WithContent(volstr));
     }

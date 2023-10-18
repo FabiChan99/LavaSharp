@@ -15,11 +15,13 @@ public class NowPlaying
 {
     public static async Task sendNowPlayingTrack(InteractionContext ctx, LavalinkTrack track)
     {
-        bool buttonevent = bool.Parse(BotConfig.GetConfig("MainConfig","SkipAndStopButtons"));
+        bool buttonevent = bool.Parse(BotConfig.GetConfig("MainConfig", "SkipAndStopButtons"));
         var embed = EmbedGenerator.GetCurrentTrackEmbed(track, CurrentPlayData.player);
-        
-        var skipButton = new DiscordButtonComponent(ButtonStyle.Primary, "skip", null, false, new DiscordComponentEmoji("⏭️"));
-        var stopButton = new DiscordButtonComponent(ButtonStyle.Primary, "stop", null, false, new DiscordComponentEmoji("⏹️"));
+
+        var skipButton =
+            new DiscordButtonComponent(ButtonStyle.Primary, "skip", null, false, new DiscordComponentEmoji("⏭️"));
+        var stopButton =
+            new DiscordButtonComponent(ButtonStyle.Primary, "stop", null, false, new DiscordComponentEmoji("⏹️"));
         DiscordMessageBuilder mb;
         if (buttonevent)
         {
@@ -29,18 +31,21 @@ public class NowPlaying
         {
             mb = new DiscordMessageBuilder().AddEmbed(embed);
         }
+
         var msg = await ctx.Channel.SendMessageAsync(mb);
         await TryRemoveButtonsFromMessage(CurrentPlayData.CurrentNowPlayingMessageId);
         CurrentPlayData.CurrentNowPlayingMessageId = msg.Id;
-        return;
     }
+
     public static async Task sendNowPlayingTrack(InteractionCreateEventArgs ctx, LavalinkTrack track)
     {
-        bool buttonevent = bool.Parse(BotConfig.GetConfig("MainConfig","SkipAndStopButtons"));
+        bool buttonevent = bool.Parse(BotConfig.GetConfig("MainConfig", "SkipAndStopButtons"));
         var embed = EmbedGenerator.GetCurrentTrackEmbed(track, CurrentPlayData.player);
-        
-        var skipButton = new DiscordButtonComponent(ButtonStyle.Primary, "skip", null, false, new DiscordComponentEmoji("⏭️"));
-        var stopButton = new DiscordButtonComponent(ButtonStyle.Primary, "stop", null, false, new DiscordComponentEmoji("⏹️"));
+
+        var skipButton =
+            new DiscordButtonComponent(ButtonStyle.Primary, "skip", null, false, new DiscordComponentEmoji("⏭️"));
+        var stopButton =
+            new DiscordButtonComponent(ButtonStyle.Primary, "stop", null, false, new DiscordComponentEmoji("⏹️"));
         DiscordMessageBuilder mb;
         if (buttonevent)
         {
@@ -50,23 +55,25 @@ public class NowPlaying
         {
             mb = new DiscordMessageBuilder().AddEmbed(embed);
         }
+
         var msg = await ctx.Interaction.Channel.SendMessageAsync(mb);
         await TryRemoveButtonsFromMessage(CurrentPlayData.CurrentNowPlayingMessageId);
         CurrentPlayData.CurrentNowPlayingMessageId = msg.Id;
-        return;
     }
 
     public static async Task TryRemoveButtonsFromMessage(ulong messageId)
     {
         try
         {
-            var msg = await CurrentApplicationData.Client.GetChannelAsync(CurrentPlayData.CurrentExecutionChannel.Id).Result.GetMessageAsync(messageId);
+            var msg = await CurrentApplicationData.Client.GetChannelAsync(CurrentPlayData.CurrentExecutionChannel.Id)
+                .Result.GetMessageAsync(messageId);
             var embed = msg.Embeds.First();
             // no buttons
             if (msg.Components.Count == 0)
             {
                 return;
             }
+
             var nmb = new DiscordMessageBuilder().AddEmbed(embed);
             await msg.ModifyAsync(nmb);
         }
@@ -98,24 +105,29 @@ public class NowPlayingEvent : ApplicationCommandsModule
                 if (player?.CurrentTrack is null)
                 {
                     await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                        new DiscordInteractionResponseBuilder().WithContent("I'm not connected to a voice channel or there is no track playing!").AsEphemeral());
+                        new DiscordInteractionResponseBuilder()
+                            .WithContent("I'm not connected to a voice channel or there is no track playing!")
+                            .AsEphemeral());
                 }
-                
+
                 if (!CheckIfSameVoiceChannel(e.Interaction))
                 {
                     await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                        new DiscordInteractionResponseBuilder().WithContent("You must be in the same voice channel as me!").AsEphemeral());
+                        new DiscordInteractionResponseBuilder()
+                            .WithContent("You must be in the same voice channel as me!").AsEphemeral());
                     return;
                 }
-                
+
                 if (!await checkDj(e))
                 {
                     return;
                 }
+
                 if (LavaQueue.queue.Count == 0)
                 {
                     await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                        new DiscordInteractionResponseBuilder().WithContent("There are no songs in the queue! You can't skip!").AsEphemeral());
+                        new DiscordInteractionResponseBuilder()
+                            .WithContent("There are no songs in the queue! You can't skip!").AsEphemeral());
                     return;
                 }
 
@@ -123,7 +135,8 @@ public class NowPlayingEvent : ApplicationCommandsModule
                 CurrentPlayData.track = nextTrack.Item1;
                 CurrentPlayData.user = nextTrack.Item2;
                 await player.PlayAsync(nextTrack.Item1);
-                await e.Interaction.Channel.SendMessageAsync($"⏭️ | Skipped the current song with button. -> ``{e.Interaction.User.UsernameWithGlobalName}``");
+                await e.Interaction.Channel.SendMessageAsync(
+                    $"⏭️ | Skipped the current song with button. -> ``{e.Interaction.User.UsernameWithGlobalName}``");
                 await NowPlaying.sendNowPlayingTrack(e, nextTrack.Item1);
             });
         }
@@ -137,26 +150,32 @@ public class NowPlayingEvent : ApplicationCommandsModule
                         new DiscordInteractionResponseBuilder().WithContent("This menu is expired!").AsEphemeral());
                     return;
                 }
+
                 var player = CurrentApplicationData.Client.GetLavalink().GetGuildPlayer(e.Guild);
                 if (player?.CurrentTrack is null)
                 {
                     await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                        new DiscordInteractionResponseBuilder().WithContent("I'm not connected to a voice channel or there is no track playing!").AsEphemeral());
+                        new DiscordInteractionResponseBuilder()
+                            .WithContent("I'm not connected to a voice channel or there is no track playing!")
+                            .AsEphemeral());
                 }
 
                 if (!CheckIfSameVoiceChannel(e.Interaction))
                 {
                     await e.Interaction.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                        new DiscordInteractionResponseBuilder().WithContent("You must be in the same voice channel as me!").AsEphemeral());
+                        new DiscordInteractionResponseBuilder()
+                            .WithContent("You must be in the same voice channel as me!").AsEphemeral());
                     return;
                 }
-                
+
                 if (!await checkDj(e))
                 {
                     return;
                 }
+
                 await LavaQueue.DisconnectAndReset(player);
-                await e.Interaction.Channel.SendMessageAsync($"⏹️ | Stopped the player with button. -> ``{e.Interaction.User.UsernameWithGlobalName}``");
+                await e.Interaction.Channel.SendMessageAsync(
+                    $"⏹️ | Stopped the player with button. -> ``{e.Interaction.User.UsernameWithGlobalName}``");
             });
         }
     }
@@ -172,15 +191,17 @@ public class NowPlayingEvent : ApplicationCommandsModule
             {
                 return false;
             }
+
             return true;
         }
         catch (Exception)
         {
             return false;
         }
+
         return false;
     }
-    
+
     private static async Task<bool> checkDj(ComponentInteractionCreateEventArgs ctx)
     {
         var member = await ctx.User.ConvertToMember(ctx.Guild);
@@ -192,11 +213,13 @@ public class NowPlayingEvent : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorembed).AsEphemeral());
             return false;
         }
+
         IReadOnlyCollection<DiscordMember> voicemembers = member.VoiceState.Channel.Users;
         bool isPlaying = false;
         try
         {
-            var ct = CurrentApplicationData.Client.GetLavalink().ConnectedSessions!.First().Value.GetGuildPlayer(ctx.Guild).CurrentTrack;
+            var ct = CurrentApplicationData.Client.GetLavalink().ConnectedSessions!.First().Value
+                .GetGuildPlayer(ctx.Guild).CurrentTrack;
             if (ct != null)
             {
                 isPlaying = true;
@@ -226,7 +249,7 @@ public class NowPlayingEvent : ApplicationCommandsModule
             }
         }
 
-        bool djconf = bool.Parse(BotConfig.GetConfig("MainConfig","RequireDJRole"));
+        bool djconf = bool.Parse(BotConfig.GetConfig("MainConfig", "RequireDJRole"));
         if (!djconf)
         {
             return true;
@@ -256,8 +279,5 @@ public class NowPlayingEvent : ApplicationCommandsModule
         }
 
         return isDJ;
-
     }
 }
-
-

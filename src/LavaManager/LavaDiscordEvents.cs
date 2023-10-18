@@ -27,14 +27,17 @@ public class LavaDiscordEvents : ApplicationCommandsModule
             {
                 return;
             }
+
             try
             {
-                await CurrentPlayData.CurrentExecutionChannel.SendMessageAsync("🔊 | I got disconnected from the voice channel. Stopping player and reset queue...");
+                await CurrentPlayData.CurrentExecutionChannel.SendMessageAsync(
+                    "🔊 | I got disconnected from the voice channel. Stopping player and reset queue...");
             }
             catch (Exception)
             {
                 // ignored
             }
+
             await LavaQueue.DisconnectAndReset(player);
         }
     }
