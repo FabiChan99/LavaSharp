@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Diagnostics;
 using System.Reflection;
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
@@ -44,6 +45,7 @@ internal class Program
             .MinimumLevel.Information()
             .WriteTo.Console()
             .CreateLogger();
+        RenderSplash();
         logger.Information("Starting LavaSharp...");
 
         string DcApiToken = "";
@@ -192,6 +194,50 @@ internal class Program
             await Task.Delay(TimeSpan.FromSeconds(30));
         }
     }
+
+    private static void RenderSplash()
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("_                       ____  _");
+        Thread.Sleep(100);
+
+        Console.WriteLine("| |    __ ___   ____ _  / ___|| |__   __ _ _ __ _ __");
+        Thread.Sleep(100);
+
+        Console.WriteLine("| |   / _` \\ \\ / / _` | \\___ \\| '_ \\ / _` | '__| '_ \\");
+        Thread.Sleep(100);
+
+        Console.WriteLine("| |__| (_| |\\ V / (_| |  ___) | | | | (_| | |  | |_) |");
+        Thread.Sleep(100);
+
+        Console.WriteLine("|_____\\__,_| \\_/ \\__,_| |____/|_| |_|\\__,_|_|  | .__/");
+        Thread.Sleep(100);
+
+        Console.WriteLine("                                              |_|");
+        Thread.Sleep(100);
+
+        Console.ResetColor();
+        Console.WriteLine("LavaSharp - Your Music Bot");
+        Console.WriteLine($"Version: {GetProductVersion()}");
+        Console.WriteLine($"Build Time: {GetBuildDate(Assembly.GetExecutingAssembly())}");
+        Console.WriteLine("Made by: Fabi-Chan");
+        Thread.Sleep(100);
+    }
+
+    private static string GetProductVersion()
+    {
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+        string? productVersion = fvi.ProductVersion;
+        return productVersion ?? "Unknown";
+    }
+    public static DateTime GetBuildDate(Assembly assembly)
+    {
+        string assemblyPath = assembly.Location;
+        DateTime buildTime = File.GetCreationTime(assemblyPath);
+        return buildTime;
+    }
+
 }
 
 public static class GlobalProperties
