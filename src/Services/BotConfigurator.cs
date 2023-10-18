@@ -20,7 +20,7 @@ namespace LavaSharp.Config
                 Console.WriteLine("The configuration file could not be loaded. Please check the config.");
                 Console.WriteLine("Press any key to exit the program.");
                 Console.ReadKey();
-                Environment.Exit(0);
+                Environment.Exit(12);
                 return null;
             }
         }

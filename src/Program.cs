@@ -53,7 +53,7 @@ internal class Program
         }
         catch
         {
-            logger.Fatal("Discord Token not found in config.ini. Check example_config.ini and add the Token.");
+            logger.Fatal("Discord Token not found in config. Please add the Token.");
             Console.ReadKey();
             Environment.Exit(41);
         }
