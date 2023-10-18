@@ -173,11 +173,13 @@ internal class Program
                         trackTitle = trackTitle.Substring(0, 64);
                     }
 
-                    await sender.UpdateStatusAsync(new DiscordActivity(trackTitle, ActivityType.ListeningTo));
+                    await sender.UpdateStatusAsync(new DiscordActivity(
+                        $"Listening to: {trackTitle}", ActivityType.Custom));
                 }
                 else
                 {
-                    await sender.UpdateStatusAsync(new DiscordActivity("Nothing", ActivityType.ListeningTo));
+                    await sender.UpdateStatusAsync(new DiscordActivity(
+                        $"No songs playing.", ActivityType.Custom));
                 }
             }
 
