@@ -16,7 +16,7 @@ using DisCatSharp.Interactivity.Extensions;
 using DisCatSharp.Lavalink;
 using LavaSharp.Config;
 using LavaSharp.Helpers;
-using LavaSharp.Services;
+using LavaSharp.LavaManager;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -91,7 +91,7 @@ internal class Program
         ulong guildId = ulong.Parse(BotConfig.GetConfig("MainConfig", "DiscordServerID"));
         appCommands.RegisterGuildCommands(Assembly.GetExecutingAssembly(), guildId);
         await discord.ConnectAsync();
-        await LavalinkManager.ConnectAsync(discord);
+        await LavalinkConnectionManager.ConnectAsync(discord);
         await StartTasks(discord);
         await Task.Delay(-1);
     }

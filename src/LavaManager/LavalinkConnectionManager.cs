@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging;
 
 #endregion
 
-namespace LavaSharp.Services;
+namespace LavaSharp.LavaManager;
 
-public class LavalinkManager
+public class LavalinkConnectionManager
 {
     public static LavalinkExtension? LavalinkExtension;
     public static LavalinkSession? LavalinkSession;

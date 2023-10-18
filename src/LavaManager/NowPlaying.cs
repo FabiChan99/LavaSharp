@@ -198,8 +198,6 @@ public class NowPlayingEvent : ApplicationCommandsModule
         {
             return false;
         }
-
-        return false;
     }
 
     private static async Task<bool> checkDj(ComponentInteractionCreateEventArgs ctx)
