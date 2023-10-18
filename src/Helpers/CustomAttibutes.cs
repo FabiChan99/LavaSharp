@@ -67,7 +67,7 @@ namespace LavaSharp.Attributes
     {
         public override async Task<bool> ExecuteChecksAsync(BaseContext ctx)
         {
-            var configuredId = ulong.Parse(BotConfig.GetConfig()["MainConfig"]["DiscordServerID"]);
+            var configuredId = ulong.Parse(BotConfig.GetConfig("MainConfig", "DiscordServerID"));
             if (ctx.Guild.Id != configuredId)
             {
                 var errorembed =
@@ -119,7 +119,7 @@ namespace LavaSharp.Attributes
                 }
             }
             
-            bool djconf = bool.Parse(BotConfig.GetConfig()["MainConfig"]["RequireDJRole"]);
+            bool djconf = bool.Parse(BotConfig.GetConfig("MainConfig", "RequireDJRole"));
             if (!djconf)
             {
                 return true;

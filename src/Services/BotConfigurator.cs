@@ -1,70 +1,98 @@
-﻿#region
-
+﻿using System;
+using System.IO;
 using DisCatSharp.Entities;
-using IniParser;
-using IniParser.Model;
 using LavaSharp.Helpers;
+using Newtonsoft.Json.Linq;
 
-#endregion
-
-namespace LavaSharp.Config;
-
-public static class BotConfig
+namespace LavaSharp.Config
 {
-    public static IniData GetConfig()
+    public static class BotConfig
     {
-        IniData ConfigIni;
-        FileIniDataParser parser = new();
-        try
+        private static JObject LoadConfig()
         {
-            ConfigIni = parser.ReadFile("config.ini");
-        }
-        catch
-        {
-            Console.WriteLine("Die Konfigurationsdatei konnte nicht geladen werden. Bitte überprüfe die config.");
-            Console.WriteLine("Drücke eine beliebige Taste um das Programm zu beenden.");
-            Console.ReadKey();
-            Environment.Exit(0);
-            return null;
-        }
-
-        return ConfigIni;
-    }
-
-
-    public static void SetConfig(string key, string value, string data)
-    {
-        IniData ConfigIni;
-        FileIniDataParser parser = new();
-        ConfigIni = parser.ReadFile("config.ini");
-        ConfigIni[key][value] = data;
-        parser.WriteFile("config.ini", ConfigIni);
-    }
-
-
-    public static DiscordColor GetEmbedColor()
-    {
-        string fallbackColor = "000000";
-        string colorString;
-
-        try
-        {
-            string colorConfig = GetConfig()["EmbedConfig"]["DefaultEmbedColor"];
-            if (colorConfig.StartsWith("#")) colorConfig = colorConfig.Remove(0, 1);
-
-            if (string.IsNullOrEmpty(colorConfig) || !HexCheck.IsHexColor(colorConfig))
+            try
             {
-                colorString = fallbackColor;
-                return new DiscordColor(colorString);
+                string json = File.ReadAllText("config.json");
+                return JObject.Parse(json);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("The configuration file could not be loaded. Please check the config.");
+                Console.WriteLine("Press any key to exit the program.");
+                Console.ReadKey();
+                Environment.Exit(0);
+                return null;
+            }
+        }
+
+        public static string GetConfig(string category, string key)
+        {
+            JObject config = LoadConfig();
+            
+            try
+            {
+                string value = config[category][key].Value<string>();
+                return !string.IsNullOrEmpty(value) ? value : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public static void SetConfig(string category, string key, string value)
+        {
+            JObject config = LoadConfig();
+
+            if (config[category] == null)
+            {
+                config[category] = new JObject();
             }
 
-            colorString = colorConfig;
+            config[category][key] = value;
+
+            File.WriteAllText("config.json", config.ToString());
         }
-        catch
+        
+        public static void SetConfig(string category, string key, bool value)
         {
-            colorString = fallbackColor;
+            JObject config = LoadConfig();
+
+            if (config[category] == null)
+            {
+                config[category] = new JObject();
+            }
+
+            config[category][key] = value;
+
+            File.WriteAllText("config.json", config.ToString());
         }
 
-        return new DiscordColor(colorString);
+        public static DiscordColor GetEmbedColor()
+        {
+            string fallbackColor = "000000";
+            string colorString;
+
+            try
+            {
+                string colorConfig = GetConfig("EmbedConfig", "DefaultEmbedColor");
+                if (colorConfig != null && colorConfig.StartsWith("#")) 
+                    colorConfig = colorConfig.Substring(1);
+
+                if (string.IsNullOrEmpty(colorConfig) || !HexCheck.IsHexColor(colorConfig))
+                {
+                    colorString = fallbackColor;
+                    return new DiscordColor(colorString);
+                }
+
+                colorString = colorConfig;
+            }
+            catch
+            {
+                colorString = fallbackColor;
+            }
+
+            return new DiscordColor(colorString);
+        }
     }
 }

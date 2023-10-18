@@ -9,6 +9,7 @@ using DisCatSharp.ApplicationCommands.Exceptions;
 using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
+using DisCatSharp.Exceptions;
 using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Enums;
 using DisCatSharp.Interactivity.Extensions;
@@ -48,7 +49,7 @@ internal class Program
         string DcApiToken = "";
         try
         {
-            DcApiToken = BotConfig.GetConfig()["MainConfig"]["Discord_Token"];
+            DcApiToken = BotConfig.GetConfig("MainConfig","Discord_Token");
         }
         catch
         {
@@ -84,7 +85,7 @@ internal class Program
             ServiceProvider = serviceProvider, EnableDefaultHelp = false
         });
         appCommands.SlashCommandErrored += Discord_SlashCommandErrored;
-        ulong guildId = ulong.Parse(BotConfig.GetConfig()["MainConfig"]["DiscordServerID"]);
+        ulong guildId = ulong.Parse(BotConfig.GetConfig("MainConfig","DiscordServerID"));
         appCommands.RegisterGuildCommands(Assembly.GetExecutingAssembly(), guildId);
         await discord.ConnectAsync();
         await LavalinkManager.ConnectAsync(discord);
@@ -131,6 +132,19 @@ internal class Program
             e.Handled = true;
             return Task.CompletedTask;
         }
+
+        if (e.Exception is DisCatSharp.Exceptions.NotFoundException)
+        {
+            e.Handled = true;
+            return Task.CompletedTask;
+        }
+        
+        if (e.Exception is DisCatSharp.Exceptions.BadRequestException)
+        {
+            e.Handled = true;
+            return Task.CompletedTask;
+        }
+        
         sender.Logger.LogError($"Exception occured: {e.Exception.GetType()}: {e.Exception.Message}");
         sender.Logger.LogError($"Stacktrace: {e.Exception.GetType()}: {e.Exception.StackTrace}");
         return Task.CompletedTask;
@@ -142,13 +156,14 @@ internal class Program
         await Task.Delay(TimeSpan.FromSeconds(5));
         while (true)
         {
-            var config = BotConfig.GetConfig()["MainConfig"];
-            if (bool.TryParse(config["ShowCurrentSongInPresence"], out var showCurrentSongInPresence) &&
-                showCurrentSongInPresence)
+            var showCurrentSongInPresence = bool.Parse(BotConfig.GetConfig("MainConfig", "ShowCurrentSongInPresence") ?? "false");
+
+            if (showCurrentSongInPresence)
             {
                 var lava = sender.GetLavalink();
                 var node = lava.ConnectedSessions.First().Value;
-                var player = node.GetGuildPlayer(await sender.GetGuildAsync(ulong.Parse(config["DiscordServerID"])));
+                var guildId = ulong.Parse(BotConfig.GetConfig("MainConfig", "DiscordServerID"));
+                var player = node.GetGuildPlayer(await sender.GetGuildAsync(guildId));
 
                 if (player != null && player.CurrentTrack != null)
                 {
@@ -169,9 +184,10 @@ internal class Program
             await Task.Delay(TimeSpan.FromSeconds(30));
         }
     }
+
 }
 
 public static class GlobalProperties
 {
-    public static ulong BotOwnerId { get; } = ulong.Parse(BotConfig.GetConfig()["MainConfig"]["BotOwnerId"]);
+    public static ulong BotOwnerId { get; } = ulong.Parse(BotConfig.GetConfig("MainConfig","BotOwnerId"));
 }

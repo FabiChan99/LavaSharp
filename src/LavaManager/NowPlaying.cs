@@ -15,7 +15,7 @@ public class NowPlaying
 {
     public static async Task sendNowPlayingTrack(InteractionContext ctx, LavalinkTrack track)
     {
-        bool buttonevent = bool.Parse(BotConfig.GetConfig()["MainConfig"]["SkipAndStopButtons"]);
+        bool buttonevent = bool.Parse(BotConfig.GetConfig("MainConfig","SkipAndStopButtons"));
         var embed = EmbedGenerator.GetCurrentTrackEmbed(track, CurrentPlayData.player);
         
         var skipButton = new DiscordButtonComponent(ButtonStyle.Primary, "skip", null, false, new DiscordComponentEmoji("⏭️"));
@@ -36,7 +36,7 @@ public class NowPlaying
     }
     public static async Task sendNowPlayingTrack(InteractionCreateEventArgs ctx, LavalinkTrack track)
     {
-        bool buttonevent = bool.Parse(BotConfig.GetConfig()["MainConfig"]["SkipAndStopButtons"]);
+        bool buttonevent = bool.Parse(BotConfig.GetConfig("MainConfig","SkipAndStopButtons"));
         var embed = EmbedGenerator.GetCurrentTrackEmbed(track, CurrentPlayData.player);
         
         var skipButton = new DiscordButtonComponent(ButtonStyle.Primary, "skip", null, false, new DiscordComponentEmoji("⏭️"));
@@ -226,7 +226,7 @@ public class NowPlayingEvent : ApplicationCommandsModule
             }
         }
 
-        bool djconf = bool.Parse(BotConfig.GetConfig()["MainConfig"]["RequireDJRole"]);
+        bool djconf = bool.Parse(BotConfig.GetConfig("MainConfig","RequireDJRole"));
         if (!djconf)
         {
             return true;

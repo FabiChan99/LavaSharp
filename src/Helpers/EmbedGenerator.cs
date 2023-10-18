@@ -28,7 +28,7 @@ namespace LavaSharp.Helpers
             string eburl = string.Empty;
             try
             {
-                eburl = BotConfig.GetConfig()["EmbedConfig"]["EmbedImageURL"];
+                eburl = BotConfig.GetConfig("EmbedConfig","EmbedImageURL");
             }
             catch (Exception)
             {
@@ -73,7 +73,7 @@ namespace LavaSharp.Helpers
             string eburl = string.Empty;
             try
             {
-                eburl = BotConfig.GetConfig()["EmbedConfig"]["EmbedImageURL"];
+                eburl = BotConfig.GetConfig("EmbedConfig","EmbedImageURL");
             }
             catch (Exception)
             {
