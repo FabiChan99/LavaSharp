@@ -80,4 +80,26 @@ public class SettingsCommand : ApplicationCommandsModule
                                                                 (setActive ? "``enabled``" : "``disabled``") + ".")
                 .AsEphemeral());
     }
+    [SlashCommand("AutoDisconnect", "Enable or disable the auto-disconnect when all users left the channel.")]
+    public async Task AutoDisconnect(InteractionContext ctx,
+        [Option("setActive", "Set the active state.")]
+        bool setActive)
+    {
+        var cfg = BotConfig.GetConfig("MainConfig", "AutoLeaveOnEmptyChannel");
+        var isAlreadyActive = bool.Parse(cfg);
+        if (isAlreadyActive == setActive)
+        {
+            var embed = EmbedGenerator.GetErrorEmbed("The auto-disconnect is already " +
+                                                     (setActive ? "enabled" : "disabled") + ".");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral());
+            return;
+        }
+
+        BotConfig.SetConfig("MainConfig", "AutoLeaveOnEmptyChannel", setActive);
+        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().WithContent("🛠️ | The auto-disconnect has been " +
+                                                                (setActive ? "``enabled``" : "``disabled``") + ".")
+                .AsEphemeral());
+    }
 }

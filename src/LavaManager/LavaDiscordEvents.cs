@@ -17,28 +17,56 @@ public class LavaDiscordEvents : ApplicationCommandsModule
     [Event]
     public static async Task VoiceStateUpdated(DiscordClient client, VoiceStateUpdateEventArgs e)
     {
-        // check if bot got disconnected
         if (e.User.Id == client.CurrentUser.Id && e.After.Channel is null)
         {
-            LavalinkExtension lava = client.GetLavalink();
-            LavalinkSession? node = lava?.ConnectedSessions.First().Value;
-            LavalinkGuildPlayer? player = node?.GetGuildPlayer(e.Guild);
-            if (player is null)
+            _ = Task.Run(async () =>
             {
-                return;
-            }
+                LavalinkExtension lava = client.GetLavalink();
+                LavalinkSession? node = lava?.ConnectedSessions.First().Value;
+                LavalinkGuildPlayer? player = node?.GetGuildPlayer(e.Guild);
+                if (player is null)
+                {
+                    return;
+                }
 
-            try
-            {
-                await CurrentPlayData.CurrentExecutionChannel.SendMessageAsync(
-                    "🔊 | I got disconnected from the voice channel. Stopping player and reset queue...");
-            }
-            catch (Exception)
-            {
-                // ignored
-            }
+                try
+                {
+                    await CurrentPlayData.CurrentExecutionChannel.SendMessageAsync(
+                        "🔊 | I got disconnected from the voice channel. Stopping player and reset queue...");
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
 
-            await LavaQueue.DisconnectAndReset(player);
+                await LavaQueue.DisconnectAndReset(player);
+            });
         }
+        else if (e.User.Id != client.CurrentUser.Id && e.Before.Channel is not null && e.Before.Channel.Users.Count == 1)
+        {
+            _ = Task.Run(async () =>
+            {
+                LavalinkExtension lava = client.GetLavalink();
+                LavalinkSession? node = lava?.ConnectedSessions.First().Value;
+                LavalinkGuildPlayer? player = node?.GetGuildPlayer(e.Guild);
+                if (player is null)
+                {
+                    return;
+                }
+
+                try
+                {
+                    await CurrentPlayData.CurrentExecutionChannel.SendMessageAsync(
+                        "🔊 | I got left alone in the voice channel. Stopping player and reset queue...");
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+
+                await LavaQueue.DisconnectAndReset(player);
+            });
+        }
+        
     }
 }

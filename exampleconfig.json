@@ -6,7 +6,8 @@
     "DiscordServerID": "ServerID",
     "ShowCurrentSongInPresence": true,
     "RequireDJRole": false,
-    "SkipAndStopButtons": true
+    "SkipAndStopButtons": true,
+    "AutoLeaveOnEmptyChannel": false
   },
   "EmbedConfig": {
     "DefaultEmbedColor": "FFFFFF",
