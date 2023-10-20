@@ -46,7 +46,7 @@ copy ..\..\LavaSharp\bin\Release\net7.0\linux-x64\publish\LavaSharp
 :: Copy the Example Config
 cd ..
 echo Copying Example Config...
-copy ..\LavaSharp\exampleconfig.json
+copy ..\LavaSharp\example.config.json
 
 :: Create the release archive
 cd ..
