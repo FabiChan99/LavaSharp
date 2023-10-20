@@ -7,7 +7,9 @@
     "ShowCurrentSongInPresence": true,
     "RequireDJRole": false,
     "SkipAndStopButtons": true,
-    "AutoLeaveOnEmptyChannel": false
+    "AutoLeaveOnEmptyChannel": false,
+    "AutoLeaveOnEmptyChannelDelayActive": true,
+    "AutoLeaveOnEmptyChannelDelay": 15
   },
   "EmbedConfig": {
     "DefaultEmbedColor": "FFFFFF",

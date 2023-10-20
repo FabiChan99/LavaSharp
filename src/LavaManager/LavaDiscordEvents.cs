@@ -5,6 +5,7 @@ using DisCatSharp.ApplicationCommands;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Lavalink;
+using LavaSharp.Config;
 using LavaSharp.Helpers;
 
 #endregion
@@ -54,16 +55,18 @@ public class LavaDiscordEvents : ApplicationCommandsModule
                     return;
                 }
 
-                try
+                bool DelayActive = bool.Parse(BotConfig.GetConfig("MainConfig", "AutoLeaveOnEmptyChannelDelayActive"));
+                if (DelayActive)
                 {
-                    await CurrentPlayData.CurrentExecutionChannel.SendMessageAsync(
-                        "🔊 | I got left alone in the voice channel. Stopping player and reset queue...");
+                    int delay = int.Parse(BotConfig.GetConfig("MainConfig", "AutoLeaveOnEmptyChannelDelay"));
+                    await Task.Delay(TimeSpan.FromSeconds(delay));
+                    if (e.Before.Channel.Users.Count > 1)
+                    {
+                        return;
+                    }
                 }
-                catch (Exception)
-                {
-                    // ignored
-                }
-
+                await CurrentPlayData.CurrentExecutionChannel.SendMessageAsync(
+                    "🔊 | I got left alone in the voice channel. Stopping player and reset queue...");
                 await LavaQueue.DisconnectAndReset(player);
             });
         }

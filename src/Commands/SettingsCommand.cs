@@ -102,4 +102,57 @@ public class SettingsCommand : ApplicationCommandsModule
                                                                 (setActive ? "``enabled``" : "``disabled``") + ".")
                 .AsEphemeral());
     }
+    
+    [SlashCommand("AutoDisconnectDelay", "Set the delay for the auto-disconnect when all users left the channel.")]
+    public async Task AutoDisconnectDelay(InteractionContext ctx,
+        [Option("delay", "Set the delay in seconds.")]
+        int delay)
+    {
+        if (delay < 1 || delay > 300)
+        {
+            var embed = EmbedGenerator.GetErrorEmbed("The delay must be between ``1`` and ``300`` seconds.");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral());
+            return;
+        }
+        var cfg = BotConfig.GetConfig("MainConfig", "AutoLeaveOnEmptyChannelDelay");
+        var isAlreadyActive = int.Parse(cfg);
+        if (isAlreadyActive == delay)
+        {
+            var embed = EmbedGenerator.GetErrorEmbed("The auto-disconnect delay is already set to " + delay + " seconds.");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral());
+            return;
+        }
+
+        BotConfig.SetConfig("MainConfig", "AutoLeaveOnEmptyChannelDelay", delay.ToString());
+        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().WithContent("🛠️ | The auto-disconnect delay has been set to " + delay + " seconds.")
+                .AsEphemeral());
+    }
+    
+    [SlashCommand("AutoDisconnectDelayActive", "Enable or disable the delay for the auto-disconnect when all users left the channel.")]
+    public async Task AutoDisconnectDelayActive(InteractionContext ctx,
+        [Option("setActive", "Set the active state.")]
+        bool setActive)
+    {
+        var cfg = BotConfig.GetConfig("MainConfig", "AutoLeaveOnEmptyChannelDelayActive");
+        var isAlreadyActive = bool.Parse(cfg);
+        if (isAlreadyActive == setActive)
+        {
+            var embed = EmbedGenerator.GetErrorEmbed("The auto-disconnect delay is already " +
+                                                     (setActive ? "enabled" : "disabled") + ".");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(embed).AsEphemeral());
+            return;
+        }
+
+        BotConfig.SetConfig("MainConfig", "AutoLeaveOnEmptyChannelDelayActive", setActive);
+        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().WithContent("🛠️ | The auto-disconnect delay has been " +
+                                                                (setActive ? "``enabled``" : "``disabled``") + ".")
+                .AsEphemeral());
+    }
+    
+    
 }
