@@ -43,8 +43,8 @@ public class LavaDiscordEvents : ApplicationCommandsModule
                 await LavaQueue.DisconnectAndReset(player);
             });
         }
-        else if (e.User.Id != client.CurrentUser.Id && e.Before.Channel is not null && e.Before.Channel.Users.Count == 1 &&
-                 e.Before.Channel.Users.First().Id == client.CurrentUser.Id)
+        else if (e.User.Id != client.CurrentUser.Id && e.Before.Channel is not null && e.Before.Channel.Users.Count == 1 && client.GetLavalink().ConnectedSessions.First().Value?.GetGuildPlayer(e.Guild) is not null
+                 && client.GetLavalink().ConnectedSessions.First().Value.GetGuildPlayer(e.Guild).Channel.Id == e.Before.Channel.Id)
         {
             _ = Task.Run(async () =>
             {
