@@ -219,22 +219,28 @@ internal class Program
         Console.ResetColor();
         Console.WriteLine("LavaSharp - Your Music Bot");
         Console.WriteLine($"Version: {GetProductVersion()}");
-        Console.WriteLine($"Build Time: {GetBuildDate(Assembly.GetExecutingAssembly())}");
+        Console.WriteLine($"Build Time: {GetBuildDate()}");
         Console.WriteLine("Made by: Fabi-Chan");
         Thread.Sleep(100);
     }
 
     private static string GetProductVersion()
     {
-        Assembly assembly = Assembly.GetExecutingAssembly();
-        FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
-        string? productVersion = fvi.ProductVersion;
-        return productVersion ?? "Unknown";
+        try
+        {
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(Process.GetCurrentProcess().MainModule.FileName);
+            string? productVersion = fvi.ProductVersion;
+            return productVersion ?? "Unknown";
+        }
+        catch
+        {
+            return "Unknown";
+        }
+
     }
-    public static DateTime GetBuildDate(Assembly assembly)
+    public static DateTime GetBuildDate()
     {
-        string assemblyPath = assembly.Location;
-        DateTime buildTime = File.GetCreationTime(assemblyPath);
+        DateTime buildTime = File.GetCreationTime(Process.GetCurrentProcess().MainModule.FileName);
         return buildTime;
     }
 
