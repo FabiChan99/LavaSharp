@@ -2,6 +2,7 @@
 
 using DisCatSharp;
 using DisCatSharp.ApplicationCommands;
+using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using DisCatSharp.Lavalink;
@@ -43,22 +44,22 @@ public class LavaDiscordEvents : ApplicationCommandsModule
                 await LavaQueue.DisconnectAndReset(player);
             });
         }
-        else if (e.User.Id != client.CurrentUser.Id && e.Before.Channel is not null && e.Before.Channel.Users.Count == 1 && client.GetLavalink().ConnectedSessions.First().Value?.GetGuildPlayer(e.Guild) is not null
-                 && client.GetLavalink().ConnectedSessions.First().Value.GetGuildPlayer(e.Guild).Channel.Id == e.Before.Channel.Id)
+        else if (e.User.Id != client.CurrentUser.Id && e.Before.Channel is not null && e.Before.Channel.Users.Count == 1)
         {
             _ = Task.Run(async () =>
             {
                 LavalinkExtension lava = client.GetLavalink();
                 LavalinkSession? node = lava?.ConnectedSessions.First().Value;
                 LavalinkGuildPlayer? player = node?.GetGuildPlayer(e.Guild);
-                if (player is null)
+                if (e.Before.Channel.Users.First().Id != client.CurrentUser.Id)
                 {
                     return;
                 }
-                if (e.Channel.Users.Count > 1)
+                if (player.Channel.Id != e.Before.Channel.Id)
                 {
                     return;
                 }
+
 
                 bool DelayActive = bool.Parse(BotConfig.GetConfig("MainConfig", "AutoLeaveOnEmptyChannelDelayActive"));
                 if (DelayActive)
@@ -76,5 +77,14 @@ public class LavaDiscordEvents : ApplicationCommandsModule
             });
         }
         
+    }
+    
+    private static DiscordChannel? GetPlayerChannel(DiscordClient client, DiscordGuild guild)
+    {
+        var lava = client.GetLavalink();
+        var node = lava.ConnectedSessions.First().Value;
+        var player = node?.GetGuildPlayer(guild);
+        var channel = player?.Channel;
+        return channel;
     }
 }
