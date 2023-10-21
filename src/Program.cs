@@ -190,8 +190,13 @@ internal class Program
                         "No songs playing.", ActivityType.Custom));
                 }
             }
+            else
+            {
+                await sender.UpdateStatusAsync(new DiscordActivity(
+                    "Bot is running", ActivityType.Custom));
+            }
 
-            await Task.Delay(TimeSpan.FromSeconds(30));
+            await Task.Delay(TimeSpan.FromSeconds(20));
         }
     }
 
