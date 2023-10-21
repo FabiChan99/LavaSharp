@@ -1,6 +1,6 @@
 # LavaSharp Documentation
 
-LavaSharp is a self-hostable music bot for Discord, built using DisCatSharp and Lavalink.
+LavaSharp is a self-hostable music bot for Discord, built using [DisCatSharp](https://github.com/Aiko-IT-Systems/DisCatSharp) and Lavalink.
 ## Installation and Usage
 ### Note: This is a single server bot. Each discord servers need their own instance!
 
