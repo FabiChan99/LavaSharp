@@ -93,6 +93,7 @@ internal class Program
         ulong guildId = ulong.Parse(BotConfig.GetConfig("MainConfig", "DiscordServerID"));
         appCommands.RegisterGuildCommands(Assembly.GetExecutingAssembly(), guildId);
         await discord.ConnectAsync();
+        await discord.BulkOverwriteGlobalApplicationCommandsAsync(new List<DiscordApplicationCommand>());
         await LavalinkConnectionManager.ConnectAsync(discord);
         await StartTasks(discord);
         await Task.Delay(-1);
