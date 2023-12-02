@@ -15,12 +15,16 @@ using LavaSharp.Attributes;
 using LavaSharp.Config;
 using LavaSharp.Helpers;
 using LavaSharp.LavaManager;
+using Microsoft.Extensions.Logging;
 
 namespace LavaSharp.Commands;
 
 [SlashCommandGroup("queue", "Queue commands.")]
 public class QueueCommand : ApplicationCommandsModule
 {
+    static bool importIsCancelled = false;
+    static bool importisrunning = false;
+    
     [EnsureGuild]
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
@@ -504,24 +508,50 @@ public class QueueCommand : ApplicationCommandsModule
 
         var i = 1;
         var total = urlList.Count;
+        bool CancelationInvoked = false;
+        importisrunning = true;
 
         foreach (var item in urlList)
         {
-            var query = item;
-            var loadResult = await player.LoadTracksAsync(LavalinkSearchType.Plain, query);
-            if (loadResult.LoadType == LavalinkLoadResultType.Track)
+            try
             {
-                queueList.Add((loadResult.GetResultAs<LavalinkTrack>(), ctx.User));
-            }
+                if (importIsCancelled)
+                {
+                    importIsCancelled = false;
+                    CancelationInvoked = true;
+                    break;
+                }
+                var query = item;
+                var loadResult = await player.LoadTracksAsync(LavalinkSearchType.Plain, query);
+                if (loadResult.LoadType == LavalinkLoadResultType.Track)
+                {
+                    queueList.Add((loadResult.GetResultAs<LavalinkTrack>(), ctx.User));
+                }
 
-            if (i % 15 == 0)
+                if (i % 15 == 0)
+                {
+                    await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🔄 | {i} of {total} songs have been imported... importing can take a while...."));
+                }
+
+            }
+            catch (Exception e)
             {
-                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🔄 | {i} of {total} songs have been imported... importing can take a while...."));
+                ctx.Client.Logger.LogError(e, "Error while importing a song.");
             }
-
             i++;
         }
-        await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("✅ | Queue import complete!"));
+
+        importisrunning = false;
+        if (CancelationInvoked)
+        {
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🚫 | Queue import cancelled. {i} of {total} songs have been imported."));
+        }
+        
+        if (!CancelationInvoked)
+        {
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("🔄 | Importing the queue..."));
+        }
+        
         LavaQueue.queue = new Queue<(LavalinkTrack, DiscordUser)>(queueList);
         
         var volstr = $"📥 | Imported the queue from the file ``{queuefile.FileName}``.";
@@ -536,6 +566,26 @@ public class QueueCommand : ApplicationCommandsModule
             CurrentPlayData.CurrentExecutionChannel = ctx.Channel;
             await NowPlaying.sendNowPlayingTrack(ctx, queueTrack.Item1);
             await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🎵 | Now playing ``{queueTrack.Item1.Info.Title}``"));
+        }
+    }
+    
+    [EnsureGuild]
+    [EnsureMatchGuildId]
+    [ApplicationRequireExecutorInVoice]
+    [CheckDJ]
+    [SlashCommand("cancelimport", "Cancels the import of a queue.")]
+    public static async Task CancelImport(InteractionContext ctx)
+    {
+        if (!importisrunning)
+        {
+            importIsCancelled = true;
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().WithContent("🚫 | Cancelled the Queueimport."));
+        }
+        else
+        {
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().WithContent("❌ | There is no running import to cancel."));
         }
     }
     
