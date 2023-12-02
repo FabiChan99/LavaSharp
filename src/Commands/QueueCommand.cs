@@ -364,7 +364,9 @@ public class QueueCommand : ApplicationCommandsModule
     [ApplicationRequireExecutorInVoice]
     [CheckDJ]
     [SlashCommand("export", "Exports the current queue to a file to re-import it later.")]
-    public static async Task ExportQueue(InteractionContext ctx)
+    public static async Task ExportQueue(InteractionContext ctx, 
+        [Option("filename", "Name of the output file."), MinimumLength(1), MaximumLength(50)]
+        string file)
     {
         var lava = ctx.Client.GetLavalink();
         var node = lava.ConnectedSessions.First().Value;
@@ -555,6 +557,12 @@ public class QueueCommand : ApplicationCommandsModule
         LavaQueue.queue = new Queue<(LavalinkTrack, DiscordUser)>(queueList);
         
         var volstr = $"📥 | Imported the queue from the file ``{queuefile.FileName}``.";
+
+        if (CancelationInvoked)
+        {
+            volstr = $"🚫 | Queue import cancelled. {i} of {total} songs have been imported. Imported the queue from the file ``{queuefile.FileName}``.";
+        }
+        
         await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(volstr));
         
         if (player?.CurrentTrack == null)
