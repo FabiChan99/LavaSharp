@@ -366,7 +366,7 @@ public class QueueCommand : ApplicationCommandsModule
     [SlashCommand("export", "Exports the current queue to a file to re-import it later.")]
     public static async Task ExportQueue(InteractionContext ctx, 
         [Option("filename", "Name of the output file."), MinimumLength(1), MaximumLength(50)]
-        string file)
+        string filename)
     {
         var lava = ctx.Client.GetLavalink();
         var node = lava.ConnectedSessions.First().Value;
@@ -411,9 +411,8 @@ public class QueueCommand : ApplicationCommandsModule
         
         var bytes = Encoding.UTF8.GetBytes(csv.ToString());
         using var stream = new MemoryStream(bytes);
-        var timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
         var updatedMessageWithFile = new DiscordWebhookBuilder()
-            .WithContent("📥 | Exported the queue.").AddFile($"queue-{timestamp}.lsq", stream);
+            .WithContent("📥 | Exported the queue.").AddFile($"{filename}.lsq", stream);
         await ctx.EditResponseAsync(updatedMessageWithFile);
     }
 
