@@ -447,6 +447,14 @@ public class QueueCommand : ApplicationCommandsModule
             player = await node.ConnectAsync(channel);
             PlayCommand.RegisterPlaybackFinishedEvent(player, ctx);
         }
+
+        if (!queuefile.FileName.EndsWith(".lsq"))
+        {
+            var erroreb = EmbedGenerator.GetErrorEmbed("The file must be a Lavasharpqueue file.");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(erroreb));
+            return;
+        }
         
         
         if (player?.CurrentTrack != null)
