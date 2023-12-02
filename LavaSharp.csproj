@@ -6,7 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <ApplicationIcon>Assets\BotIcon.ico</ApplicationIcon>
-        <Version>1.0.1</Version>
+        <Version>1.1.0</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -14,6 +14,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="CsvReader.dll" Version="1.0.0" />
         <PackageReference Include="DisCatSharp" Version="10.4.2-nightly-040" />
         <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.4.2-nightly-040" />
         <PackageReference Include="DisCatSharp.Common" Version="10.4.2-nightly-040" />

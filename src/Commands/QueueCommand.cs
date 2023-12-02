@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Globalization;
+using System.Text;
 using DisCatSharp.ApplicationCommands;
 using DisCatSharp.ApplicationCommands.Attributes;
 using DisCatSharp.ApplicationCommands.Context;
@@ -9,6 +10,7 @@ using DisCatSharp.Interactivity;
 using DisCatSharp.Interactivity.Extensions;
 using DisCatSharp.Lavalink;
 using DisCatSharp.Lavalink.Entities;
+using DisCatSharp.Lavalink.Enums;
 using LavaSharp.Attributes;
 using LavaSharp.Config;
 using LavaSharp.Helpers;
@@ -56,10 +58,7 @@ public class QueueCommand : ApplicationCommandsModule
                 new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
             return;
         }
-
-        // acknowledge the interaction
-
-        // Paginate the queue
+        
         var pages = new List<Page>();
         var queueList = queue.ToList();
         var queueString = new StringBuilder();
@@ -352,4 +351,220 @@ public class QueueCommand : ApplicationCommandsModule
         await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(volstr));
         return;
     }
+
+
+
+    [EnsureGuild]
+    [EnsureMatchGuildId]
+    [RequireRunningPlayer]
+    [ApplicationRequireExecutorInVoice]
+    [CheckDJ]
+    [SlashCommand("export", "Exports the current queue to a file to re-import it later.")]
+    public static async Task ExportQueue(InteractionContext ctx)
+    {
+        var lava = ctx.Client.GetLavalink();
+        var node = lava.ConnectedSessions.First().Value;
+        var player = node.GetGuildPlayer(ctx.Guild);
+        var channel = ctx.Member.VoiceState?.Channel;
+
+        if (player?.Channel.Id != channel?.Id)
+        {
+            var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel as me.");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
+            return;
+        }
+        
+        if (LavaQueue.queue.Count == 0)
+        {
+            var errorEmbed = EmbedGenerator.GetErrorEmbed("There are no songs in the queue.");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
+            return;
+        }
+
+        await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+            new DiscordInteractionResponseBuilder().WithContent("📥 | Exporting the queue..."));
+        
+                
+        var queueList = LavaQueue.queue.ToList();
+        var tracks = new List<LavalinkTrack>();
+        foreach (var item in queueList)
+        {
+            tracks.Add(item.Item1);
+        }
+        
+        var csv = new StringBuilder();
+        csv.AppendLine("\"Title\",\"Author\",\"Length\",\"Url\"");
+        foreach (var item in tracks)
+        {
+            var newLine = $"\"{item.Info.Title}\",\"{item.Info.Author}\",\"{item.Info.Length}\",\"{item.Info.Uri}\"";
+            csv.AppendLine(newLine);
+        }
+
+        
+        var bytes = Encoding.UTF8.GetBytes(csv.ToString());
+        using var stream = new MemoryStream(bytes);
+        var timestamp = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss");
+        var updatedMessageWithFile = new DiscordWebhookBuilder()
+            .WithContent("📥 | Exported the queue.").AddFile($"queue-{timestamp}.lsq", stream);
+        await ctx.EditResponseAsync(updatedMessageWithFile);
+    }
+
+    [EnsureGuild]
+    [EnsureMatchGuildId]
+
+    [ApplicationRequireExecutorInVoice]
+    [CheckDJ]
+    [SlashCommand("import", "Imports a queue from a file.")]
+    public static async Task ImportQueue(InteractionContext ctx,
+        [Option("file", "The file to import.")]
+        DiscordAttachment queuefile)
+    {
+        var lava = ctx.Client.GetLavalink();
+        var node = lava.ConnectedSessions.First().Value;
+        var player = node.GetGuildPlayer(ctx.Guild);
+        var channel = ctx.Member.VoiceState?.Channel;
+
+        if (player != null && player.Channel.Id != channel?.Id)
+        {
+            var errorEmbed = EmbedGenerator.GetErrorEmbed("You must be in the same voice channel as me.");
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().AddEmbed(errorEmbed));
+            return;
+        }
+        
+        bool wasinit = true;
+        
+        if (player is null)
+        {
+            wasinit = false;
+            player = await node.ConnectAsync(channel);
+            PlayCommand.RegisterPlaybackFinishedEvent(player, ctx);
+        }
+        
+        
+        if (player?.CurrentTrack != null)
+        {
+            var eb = new DiscordEmbedBuilder();
+            eb.WithTitle("Queueimporter");
+            eb.WithDescription(
+                $"Are you sure you want to import the queue from the file ``{queuefile.FileName}``? This will clear the current queue.");
+            eb.WithColor(BotConfig.GetEmbedColor());
+            eb.WithFooter($"{ctx.Member.UsernameWithDiscriminator}", ctx.Member.AvatarUrl);
+            eb.WithTimestamp(DateTime.Now);
+            var buttons = new List<DiscordButtonComponent>();
+            var yesButton = new DiscordButtonComponent(ButtonStyle.Success, "yes", "Yes");
+            var noButton = new DiscordButtonComponent(ButtonStyle.Danger, "no", "No");
+            buttons.Add(yesButton);
+            buttons.Add(noButton);
+            var irb = new DiscordInteractionResponseBuilder();
+            irb.AddEmbed(eb);
+            irb.AddComponents(buttons);
+
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource, irb);
+            var interactivity = ctx.Client.GetInteractivity();
+
+            bool MatchAuthor(ComponentInteractionCreateEventArgs args)
+            {
+                return args.User.Id == ctx.User.Id;
+            }
+
+            var result = await interactivity.WaitForButtonAsync(await ctx.GetOriginalResponseAsync(), MatchAuthor,
+                TimeSpan.FromSeconds(45));
+            if (result.TimedOut)
+            {
+                await ctx.EditResponseAsync(
+                    new DiscordWebhookBuilder().WithContent("⏱️ | Timed out - Queueimport cancelled."));
+                return;
+            }
+
+            if (result.Result.Id == "no")
+            {
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("🚫 | Cancelled."));
+                return;
+            }
+        }
+        
+        if (!wasinit)
+        {
+            await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
+                new DiscordInteractionResponseBuilder().WithContent("📥 | Importing the queue..."));
+        }
+        
+        
+        await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("📥 | Importing the queue... This can take a while"));
+
+        var queueList = new List<(LavalinkTrack, DiscordUser)>();
+
+        var url = queuefile.Url;
+        using var client = new HttpClient();
+        await using var fileStream = await client.GetStreamAsync(url);
+        var urlList = ReadUrlsFromCsv(fileStream);
+
+        var i = 1;
+        var total = urlList.Count;
+
+        foreach (var item in urlList)
+        {
+            var query = item;
+            var loadResult = await player.LoadTracksAsync(LavalinkSearchType.Plain, query);
+            if (loadResult.LoadType == LavalinkLoadResultType.Track)
+            {
+                queueList.Add((loadResult.GetResultAs<LavalinkTrack>(), ctx.User));
+            }
+
+            if (i % 15 == 0)
+            {
+                await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🔄 | {i} of {total} songs have been imported... importing can take a while...."));
+            }
+
+            i++;
+        }
+        await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent("✅ | Queue import complete!"));
+        LavaQueue.queue = new Queue<(LavalinkTrack, DiscordUser)>(queueList);
+        
+        var volstr = $"📥 | Imported the queue from the file ``{queuefile.FileName}``.";
+        await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(volstr));
+        
+        if (player?.CurrentTrack == null)
+        {
+            var queueTrack = LavaQueue.queue.Dequeue();
+            await player.PlayAsync(queueTrack.Item1);
+            CurrentPlayData.track = queueTrack.Item1;
+            CurrentPlayData.user = ctx.User;
+            CurrentPlayData.CurrentExecutionChannel = ctx.Channel;
+            await NowPlaying.sendNowPlayingTrack(ctx, queueTrack.Item1);
+            await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent($"🎵 | Now playing ``{queueTrack.Item1.Info.Title}``"));
+        }
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    private static List<string> ReadUrlsFromCsv(Stream fileStream)
+    {
+        var urlList = new List<string>();
+        using var csv = new StreamReader(fileStream);
+
+        while (!csv.EndOfStream)
+        {
+            var line = csv.ReadLine();
+            var values = line?.Split(',');
+            if (values != null && values.Length > 3)
+            {
+                urlList.Add(values[3]);
+            }
+        }
+
+        return urlList;
+    }
+
+    
+    
+    
 }

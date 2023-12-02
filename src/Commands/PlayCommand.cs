@@ -230,7 +230,7 @@ public class PlayCommand : ApplicationCommandsModule
     }
 
 
-    private static void RegisterPlaybackFinishedEvent(LavalinkGuildPlayer player, InteractionContext ctx)
+    public static void RegisterPlaybackFinishedEvent(LavalinkGuildPlayer player, InteractionContext ctx)
     {
         if (player?.CurrentTrack is null)
         {

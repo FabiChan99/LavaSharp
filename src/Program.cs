@@ -42,7 +42,7 @@ internal class Program
     private static async Task MainAsync()
     {
         var logger = Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Information()
+            .MinimumLevel.Debug()
             .WriteTo.Console()
             .CreateLogger();
         RenderSplash();
