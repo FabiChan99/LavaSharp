@@ -35,7 +35,7 @@ lavalink:
       repository: "https://maven.topi.wtf/releases"
   pluginsDir: "./plugins"
   server:
-    password: "Shaym1n99!"
+    password: "passwordhere" # the same Passwort have to be in your client/bot
     sources:
       youtube: true
       bandcamp: true
