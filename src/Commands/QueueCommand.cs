@@ -576,7 +576,7 @@ public class QueueCommand : ApplicationCommandsModule
     [SlashCommand("cancelimport", "Cancels the import of a queue.")]
     public static async Task CancelImport(InteractionContext ctx)
     {
-        if (!importisrunning)
+        if (importisrunning)
         {
             importIsCancelled = true;
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
