@@ -363,7 +363,7 @@ public class QueueCommand : ApplicationCommandsModule
     [RequireRunningPlayer]
     [ApplicationRequireExecutorInVoice]
     [CheckDJ]
-    [SlashCommand("export", "Exports the current queue to a file to re-import it later.")]
+    [SlashCommand("export", "Exports the current queue to a file to re-import it later. [EXPERIMENTAL]")]
     public static async Task ExportQueue(InteractionContext ctx, 
         [Option("filename", "Name of the output file."), MinimumLength(1), MaximumLength(50)]
         string filename)
@@ -421,7 +421,7 @@ public class QueueCommand : ApplicationCommandsModule
 
     [ApplicationRequireExecutorInVoice]
     [CheckDJ]
-    [SlashCommand("import", "Imports a queue from a file.")]
+    [SlashCommand("import", "Imports a queue from a file. [EXPERIMENTAL]")]
     public static async Task ImportQueue(InteractionContext ctx,
         [Option("file", "The file to import.")]
         DiscordAttachment queuefile)
@@ -448,7 +448,7 @@ public class QueueCommand : ApplicationCommandsModule
             PlayCommand.RegisterPlaybackFinishedEvent(player, ctx);
         }
 
-        if (!queuefile.FileName.EndsWith(".lsq"))
+        if (!queuefile.Filename.EndsWith(".lsq"))
         {
             var erroreb = EmbedGenerator.GetErrorEmbed("The file must be a Lavasharpqueue file.");
             await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
@@ -462,7 +462,7 @@ public class QueueCommand : ApplicationCommandsModule
             var eb = new DiscordEmbedBuilder();
             eb.WithTitle("Queueimporter");
             eb.WithDescription(
-                $"Are you sure you want to import the queue from the file ``{queuefile.FileName}``? This will clear the current queue.");
+                $"Are you sure you want to import the queue from the file ``{queuefile.Filename}``? This will clear the current queue.");
             eb.WithColor(BotConfig.GetEmbedColor());
             eb.WithFooter($"{ctx.Member.UsernameWithDiscriminator}", ctx.Member.AvatarUrl);
             eb.WithTimestamp(DateTime.Now);
@@ -563,11 +563,11 @@ public class QueueCommand : ApplicationCommandsModule
         
         LavaQueue.queue = new Queue<(LavalinkTrack, DiscordUser)>(queueList);
         
-        var volstr = $"📥 | Imported the queue from the file ``{queuefile.FileName}``.";
+        var volstr = $"📥 | Imported the queue from the file ``{queuefile.Filename}``.";
 
         if (CancelationInvoked)
         {
-            volstr = $"🚫 | Queue import cancelled. {i} of {total} songs have been imported. Imported the queue from the file ``{queuefile.FileName}``.";
+            volstr = $"🚫 | Queue import cancelled. {i} of {total} songs have been imported. Imported the queue from the file ``{queuefile.Filename}``.";
         }
         
         await ctx.EditResponseAsync(new DiscordWebhookBuilder().WithContent(volstr));
@@ -588,7 +588,7 @@ public class QueueCommand : ApplicationCommandsModule
     [EnsureMatchGuildId]
     [ApplicationRequireExecutorInVoice]
     [CheckDJ]
-    [SlashCommand("cancelimport", "Cancels the import of a queue.")]
+    [SlashCommand("cancelimport", "Cancels the import of a queue. [EXPERIMENTAL]")]
     public static async Task CancelImport(InteractionContext ctx)
     {
         if (importisrunning)
