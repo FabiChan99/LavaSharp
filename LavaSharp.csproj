@@ -15,11 +15,11 @@
 
     <ItemGroup>
         <PackageReference Include="CsvReader.dll" Version="1.0.0" />
-        <PackageReference Include="DisCatSharp" Version="10.6.0" />
-        <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.6.0" />
-        <PackageReference Include="DisCatSharp.Common" Version="10.6.0" />
-        <PackageReference Include="DisCatSharp.Interactivity" Version="10.6.0" />
-        <PackageReference Include="DisCatSharp.Lavalink" Version="10.6.0" />
+        <PackageReference Include="DisCatSharp" Version="10.6.1-nightly-003" />
+        <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.6.1-nightly-003" />
+        <PackageReference Include="DisCatSharp.Common" Version="10.6.1-nightly-003" />
+        <PackageReference Include="DisCatSharp.Interactivity" Version="10.6.1-nightly-003" />
+        <PackageReference Include="DisCatSharp.Lavalink" Version="10.6.1-nightly-003" />
         <PackageReference Include="ini-parser-new" Version="2.6.2" />
         <PackageReference Include="Serilog" Version="3.1.1" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
